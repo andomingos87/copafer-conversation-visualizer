@@ -8,7 +8,9 @@ const state = {
   filteredConversations: {}, // Conversas após filtros
   selectedSession: null,    // Session ID selecionada
   searchTerm: '',           // Termo de busca atual
-  clientFilter: ''          // Filtro de cliente atual
+  clientFilter: '',         // Filtro de cliente atual
+  availableClients: [],     // Lista de clientes disponíveis para autocomplete
+  autocompleteHighlightedIndex: -1 // Índice da opção destacada no autocomplete
 };
 
 // Referências aos elementos do DOM
@@ -16,6 +18,8 @@ const elements = {
   searchInput: null,
   clearSearch: null,
   clientFilter: null,
+  clientFilterDropdown: null,
+  clientFilterClear: null,
   conversationList: null,
   conversationCount: null,
   chatTitle: null,
@@ -25,7 +29,12 @@ const elements = {
   errorState: null,
   errorText: null,
   retryButton: null,
-  useMockupButton: null
+  useMockupButton: null,
+  // Elementos responsivos
+  menuToggle: null,
+  sidebar: null,
+  sidebarClose: null,
+  sidebarOverlay: null
 };
 
 // ========================================
@@ -40,6 +49,8 @@ function init() {
   elements.searchInput = document.getElementById('searchInput');
   elements.clearSearch = document.getElementById('clearSearch');
   elements.clientFilter = document.getElementById('clientFilter');
+  elements.clientFilterDropdown = document.getElementById('clientFilterDropdown');
+  elements.clientFilterClear = document.getElementById('clientFilterClear');
   elements.conversationList = document.getElementById('conversationList');
   elements.conversationCount = document.getElementById('conversationCount');
   elements.chatTitle = document.getElementById('chatTitle');
@@ -50,6 +61,11 @@ function init() {
   elements.errorText = document.getElementById('errorText');
   elements.retryButton = document.getElementById('retryButton');
   elements.useMockupButton = document.getElementById('useMockupButton');
+  // Elementos responsivos
+  elements.menuToggle = document.getElementById('menuToggle');
+  elements.sidebar = document.getElementById('sidebar');
+  elements.sidebarClose = document.getElementById('sidebarClose');
+  elements.sidebarOverlay = document.getElementById('sidebarOverlay');
   
   // Carrega e processa os dados
   loadData();
@@ -209,8 +225,18 @@ function setupEventListeners() {
   // Botão limpar busca
   elements.clearSearch.addEventListener('click', clearSearch);
   
-  // Filtro de cliente
-  elements.clientFilter.addEventListener('change', handleClientFilter);
+  // Autocomplete de cliente
+  elements.clientFilter.addEventListener('input', handleClientFilterInput);
+  elements.clientFilter.addEventListener('focus', handleClientFilterFocus);
+  elements.clientFilter.addEventListener('keydown', handleClientFilterKeydown);
+  elements.clientFilterClear.addEventListener('click', clearClientFilter);
+  
+  // Fechar dropdown ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.autocomplete-wrapper')) {
+      hideClientFilterDropdown();
+    }
+  });
   
   // Tecla Enter no campo de busca
   elements.searchInput.addEventListener('keyup', (e) => {
@@ -232,6 +258,31 @@ function setupEventListeners() {
       useMockupData();
     });
   }
+  
+  // Menu hambúrguer (responsivo)
+  if (elements.menuToggle) {
+    elements.menuToggle.addEventListener('click', openSidebar);
+  }
+  
+  // Botão fechar sidebar
+  if (elements.sidebarClose) {
+    elements.sidebarClose.addEventListener('click', closeSidebar);
+  }
+  
+  // Overlay da sidebar
+  if (elements.sidebarOverlay) {
+    elements.sidebarOverlay.addEventListener('click', closeSidebar);
+  }
+  
+  // Fechar sidebar com tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && elements.sidebar && elements.sidebar.classList.contains('open')) {
+      closeSidebar();
+    }
+  });
+  
+  // Detectar mudança de tamanho da tela
+  window.addEventListener('resize', debounce(handleResize, 150));
 }
 
 // ========================================
@@ -239,21 +290,20 @@ function setupEventListeners() {
 // ========================================
 
 /**
- * Popula o dropdown de filtro de clientes
+ * Popula a lista de clientes disponíveis para autocomplete
  */
 function populateClientFilter() {
   const sessions = Object.keys(state.conversations);
   
-  // Limpa opções existentes (exceto a primeira)
-  elements.clientFilter.innerHTML = '<option value="">Todos os clientes</option>';
+  // Cria array de clientes com session_id e número formatado
+  state.availableClients = sessions.map(sessionId => ({
+    sessionId: sessionId,
+    displayText: formatPhoneNumber(sessionId),
+    rawNumber: sessionId.replace(/\D/g, '') // Número sem formatação para busca
+  }));
   
-  // Adiciona uma opção para cada session_id
-  sessions.forEach(sessionId => {
-    const option = document.createElement('option');
-    option.value = sessionId;
-    option.textContent = formatPhoneNumber(sessionId);
-    elements.clientFilter.appendChild(option);
-  });
+  // Ordena por número
+  state.availableClients.sort((a, b) => a.sessionId.localeCompare(b.sessionId));
 }
 
 /**
@@ -382,6 +432,11 @@ function selectConversation(sessionId) {
   
   // Renderiza mensagens
   renderMessages(sessionId);
+  
+  // Fecha sidebar em mobile após selecionar conversa
+  if (isMobileView()) {
+    closeSidebar();
+  }
 }
 
 /**
@@ -413,11 +468,252 @@ function clearSearch() {
 }
 
 /**
- * Handler para filtro de cliente
+ * Handler para input do filtro de cliente (autocomplete)
+ */
+function handleClientFilterInput() {
+  const value = elements.clientFilter.value.trim();
+  state.autocompleteHighlightedIndex = -1;
+  
+  // Mostra/esconde botão limpar
+  elements.clientFilterClear.style.display = value.length > 0 ? 'flex' : 'none';
+  
+  if (value.length === 0) {
+    // Se vazio, limpa filtro
+    state.clientFilter = '';
+    hideClientFilterDropdown();
+    applyFilters();
+    return;
+  }
+  
+  // Filtra clientes que correspondem ao termo digitado
+  const filtered = filterClients(value);
+  
+  // Mostra dropdown com resultados
+  renderClientFilterDropdown(filtered);
+  
+  // Tenta encontrar correspondência exata
+  const exactMatch = findExactClientMatch(value);
+  if (exactMatch) {
+    // Se encontrar correspondência exata, aplica o filtro automaticamente
+    state.clientFilter = exactMatch.sessionId;
+    applyFilters();
+  } else if (filtered.length === 1) {
+    // Se houver apenas uma opção filtrada, aplica automaticamente
+    state.clientFilter = filtered[0].sessionId;
+    applyFilters();
+  } else {
+    // Se não houver correspondência exata ou única, limpa filtro
+    // O usuário precisa selecionar uma opção do dropdown
+    state.clientFilter = '';
+    applyFilters();
+  }
+}
+
+/**
+ * Handler para quando o campo recebe foco
+ */
+function handleClientFilterFocus() {
+  const value = elements.clientFilter.value.trim();
+  if (value.length > 0) {
+    const filtered = filterClients(value);
+    renderClientFilterDropdown(filtered);
+  } else {
+    // Se vazio, mostra todos os clientes
+    renderClientFilterDropdown(state.availableClients);
+  }
+}
+
+/**
+ * Handler para teclas no campo de filtro de cliente
+ */
+function handleClientFilterKeydown(e) {
+  const dropdown = elements.clientFilterDropdown;
+  const options = dropdown.querySelectorAll('.autocomplete-option');
+  
+  if (!dropdown.classList.contains('show') || options.length === 0) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      return;
+    }
+    return;
+  }
+  
+  switch (e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      state.autocompleteHighlightedIndex = Math.min(
+        state.autocompleteHighlightedIndex + 1,
+        options.length - 1
+      );
+      updateHighlightedOption(options);
+      break;
+      
+    case 'ArrowUp':
+      e.preventDefault();
+      state.autocompleteHighlightedIndex = Math.max(
+        state.autocompleteHighlightedIndex - 1,
+        -1
+      );
+      updateHighlightedOption(options);
+      break;
+      
+    case 'Enter':
+      e.preventDefault();
+      if (state.autocompleteHighlightedIndex >= 0 && options[state.autocompleteHighlightedIndex]) {
+        selectClientFromDropdown(options[state.autocompleteHighlightedIndex]);
+      } else if (options.length === 1) {
+        // Se só há uma opção, seleciona ela
+        selectClientFromDropdown(options[0]);
+      }
+      break;
+      
+    case 'Escape':
+      e.preventDefault();
+      hideClientFilterDropdown();
+      elements.clientFilter.blur();
+      break;
+  }
+}
+
+/**
+ * Filtra clientes baseado no termo de busca
+ */
+function filterClients(searchTerm) {
+  if (!searchTerm) return state.availableClients;
+  
+  const term = searchTerm.toLowerCase().replace(/\D/g, ''); // Remove não-numéricos e converte para lowercase
+  
+  return state.availableClients.filter(client => {
+    // Busca no número formatado
+    const displayMatch = client.displayText.toLowerCase().includes(searchTerm.toLowerCase());
+    // Busca no número sem formatação
+    const rawMatch = client.rawNumber.includes(term);
+    // Busca no session_id original
+    const sessionMatch = client.sessionId.includes(searchTerm);
+    
+    return displayMatch || rawMatch || sessionMatch;
+  });
+}
+
+/**
+ * Encontra correspondência exata de cliente
+ */
+function findExactClientMatch(searchTerm) {
+  const term = searchTerm.replace(/\D/g, ''); // Remove não-numéricos
+  
+  return state.availableClients.find(client => {
+    return client.sessionId === searchTerm || 
+           client.rawNumber === term ||
+           client.sessionId.replace(/\D/g, '') === term;
+  });
+}
+
+/**
+ * Renderiza o dropdown do autocomplete
+ */
+function renderClientFilterDropdown(clients) {
+  const dropdown = elements.clientFilterDropdown;
+  
+  if (clients.length === 0) {
+    dropdown.innerHTML = '<div class="autocomplete-empty">Nenhum cliente encontrado</div>';
+    dropdown.classList.add('show');
+    return;
+  }
+  
+  dropdown.innerHTML = '';
+  
+  clients.forEach((client, index) => {
+    const option = document.createElement('div');
+    option.className = 'autocomplete-option';
+    option.dataset.sessionId = client.sessionId;
+    option.textContent = client.displayText;
+    
+    // Adiciona highlight se corresponder ao texto digitado
+    const searchTerm = elements.clientFilter.value.trim();
+    if (searchTerm) {
+      const highlighted = highlightClientOption(client.displayText, searchTerm);
+      option.innerHTML = highlighted;
+    } else {
+      option.textContent = client.displayText;
+    }
+    
+    option.addEventListener('click', () => selectClientFromDropdown(option));
+    dropdown.appendChild(option);
+  });
+  
+  dropdown.classList.add('show');
+  state.autocompleteHighlightedIndex = -1;
+}
+
+/**
+ * Destaca parte do texto da opção que corresponde à busca
+ */
+function highlightClientOption(text, searchTerm) {
+  const term = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${term})`, 'gi');
+  return text.replace(regex, '<strong>$1</strong>');
+}
+
+/**
+ * Atualiza a opção destacada no dropdown
+ */
+function updateHighlightedOption(options) {
+  options.forEach((option, index) => {
+    option.classList.toggle('highlighted', index === state.autocompleteHighlightedIndex);
+  });
+  
+  // Scroll para a opção destacada
+  if (state.autocompleteHighlightedIndex >= 0 && options[state.autocompleteHighlightedIndex]) {
+    options[state.autocompleteHighlightedIndex].scrollIntoView({
+      block: 'nearest',
+      behavior: 'smooth'
+    });
+  }
+}
+
+/**
+ * Seleciona um cliente do dropdown
+ */
+function selectClientFromDropdown(optionElement) {
+  const sessionId = optionElement.dataset.sessionId;
+  
+  if (sessionId) {
+    const client = state.availableClients.find(c => c.sessionId === sessionId);
+    if (client) {
+      elements.clientFilter.value = client.displayText;
+      state.clientFilter = sessionId;
+      hideClientFilterDropdown();
+      applyFilters();
+    }
+  }
+}
+
+/**
+ * Esconde o dropdown do autocomplete
+ */
+function hideClientFilterDropdown() {
+  elements.clientFilterDropdown.classList.remove('show');
+  state.autocompleteHighlightedIndex = -1;
+}
+
+/**
+ * Limpa o filtro de cliente
+ */
+function clearClientFilter() {
+  elements.clientFilter.value = '';
+  state.clientFilter = '';
+  elements.clientFilterClear.style.display = 'none';
+  hideClientFilterDropdown();
+  applyFilters();
+  elements.clientFilter.focus();
+}
+
+/**
+ * Handler para filtro de cliente (mantido para compatibilidade)
  */
 function handleClientFilter() {
-  state.clientFilter = elements.clientFilter.value;
-  applyFilters();
+  // Esta função não é mais usada, mas mantida para evitar erros
+  // O filtro agora é gerenciado por handleClientFilterInput
 }
 
 /**
@@ -456,6 +752,54 @@ function applyFilters() {
     `;
     elements.chatTitle.textContent = 'Selecione uma conversa';
     elements.messageCount.textContent = '';
+  }
+}
+
+// ========================================
+// SIDEBAR RESPONSIVA
+// ========================================
+
+/**
+ * Verifica se está em modo mobile
+ * @returns {boolean}
+ */
+function isMobileView() {
+  return window.innerWidth <= 768;
+}
+
+/**
+ * Abre a sidebar (mobile)
+ */
+function openSidebar() {
+  if (elements.sidebar) {
+    elements.sidebar.classList.add('open');
+    document.body.style.overflow = 'hidden'; // Previne scroll do body
+  }
+  if (elements.sidebarOverlay) {
+    elements.sidebarOverlay.classList.add('visible');
+  }
+}
+
+/**
+ * Fecha a sidebar (mobile)
+ */
+function closeSidebar() {
+  if (elements.sidebar) {
+    elements.sidebar.classList.remove('open');
+    document.body.style.overflow = ''; // Restaura scroll do body
+  }
+  if (elements.sidebarOverlay) {
+    elements.sidebarOverlay.classList.remove('visible');
+  }
+}
+
+/**
+ * Handler para redimensionamento da tela
+ */
+function handleResize() {
+  // Se passou para desktop, fecha sidebar e remove classes
+  if (!isMobileView()) {
+    closeSidebar();
   }
 }
 

@@ -14,9 +14,16 @@
     <!-- Header -->
     <header class="header">
       <div class="header-brand">
+        <!-- Menu Hambúrguer (mobile) -->
+        <button id="menuToggle" class="menu-toggle" aria-label="Abrir menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <div class="logo">
-          <span class="logo-icon">🏪</span>
-          <h1>Copafer</h1>
+          <img src="assets/images/logo.webp" alt="Copafer" class="logo-img">
         </div>
         <span class="header-subtitle">Visualizador de Conversas</span>
       </div>
@@ -32,20 +39,31 @@
       </div>
     </header>
 
+    <!-- Overlay da Sidebar (mobile) -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <!-- Main Content -->
     <main class="main-content">
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
+          <button id="sidebarClose" class="sidebar-close" aria-label="Fechar menu">×</button>
           <h2>Conversas</h2>
           <span id="conversationCount" class="badge">0</span>
         </div>
         
         <div class="filter-section">
           <label for="clientFilter">Filtrar por cliente:</label>
-          <select id="clientFilter">
-            <option value="">Todos os clientes</option>
-          </select>
+          <div class="autocomplete-wrapper">
+            <input 
+              type="text" 
+              id="clientFilter" 
+              placeholder="Digite o número ou selecione..."
+              autocomplete="off"
+            >
+            <div id="clientFilterDropdown" class="autocomplete-dropdown"></div>
+            <button id="clientFilterClear" class="autocomplete-clear" title="Limpar filtro" style="display: none;">×</button>
+          </div>
         </div>
 
         <div id="conversationList" class="conversation-list">
