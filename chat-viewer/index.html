@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copafer - Visualizador de Conversas</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-brand">
+        <div class="logo">
+          <span class="logo-icon">🏪</span>
+          <h1>Copafer</h1>
+        </div>
+        <span class="header-subtitle">Visualizador de Conversas</span>
+      </div>
+      <div class="header-search">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Buscar por produto ou texto...">
+          <button id="clearSearch" class="clear-btn" title="Limpar busca">×</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>Conversas</h2>
+          <span id="conversationCount" class="badge">0</span>
+        </div>
+        
+        <div class="filter-section">
+          <label for="clientFilter">Filtrar por cliente:</label>
+          <select id="clientFilter">
+            <option value="">Todos os clientes</option>
+          </select>
+        </div>
+
+        <div id="conversationList" class="conversation-list">
+          <!-- Lista de conversas será renderizada aqui -->
+        </div>
+      </aside>
+
+      <!-- Chat Area -->
+      <section class="chat-area">
+        <div id="chatHeader" class="chat-header">
+          <div class="chat-header-info">
+            <span class="chat-header-icon">💬</span>
+            <span id="chatTitle">Selecione uma conversa</span>
+          </div>
+          <span id="messageCount" class="message-count"></span>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+          <div class="empty-state">
+            <div class="empty-icon">📱</div>
+            <p>Selecione uma conversa na lista ao lado para visualizar as mensagens</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+

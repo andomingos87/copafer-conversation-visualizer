@@ -1,0 +1,110 @@
+[
+    {
+      "id": 5431,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "human",
+        "content": "boa tarde",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    },
+    {
+      "id": 5432,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "ai",
+        "content": "Boa tarde, Marcelo! Tudo bem? Como posso auxiliar você agora? Se for sobre o pedido #PED20251118000070, me avise se já conseguiu finalizar o pagamento ou se precisa de mais alguma coisa. 😊",
+        "tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "invalid_tool_calls": []
+      }
+    },
+    {
+      "id": 5443,
+      "session_id": "5511941239405",
+      "message": {
+        "type": "human",
+        "content": "Piso",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    },
+    {
+      "id": 5401,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "human",
+        "content": "BOM DIA",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    },
+    {
+      "id": 5402,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "ai",
+        "content": "Bom dia! Sou da Copafer, uma das maiores redes de materiais de construção do Brasil. Como posso auxiliar você hoje? Está procurando algum produto específico, orçamento ou ajuda com um projeto?",
+        "tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "invalid_tool_calls": []
+      }
+    },
+    {
+      "id": 5403,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "human",
+        "content": "Joelho 90 Graus Soldável 25 mm - 22.15.026.0 - TIGRE",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    },
+    {
+      "id": 5404,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "ai",
+        "content": "*Joelho 90 Graus Soldável 25 mm TIGRE*\n\nConexão em PVC soldável para tubulações hidráulicas, ideal para instalações residenciais ou comerciais, com ângulo de 90 graus e diâmetro de 25 mm.\n\n*Preço:* R$ 0,89\n\n*Cód. Copafer:* 51705\n\nEsse é o produto exato que você mencionou (ref. TIGRE 22.15.026.0). Temos em estoque. Quantas unidades precisa? Posso adicionar ao carrinho e calcular o total para você.",
+        "tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "invalid_tool_calls": []
+      }
+    },
+    {
+      "id": 5405,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "human",
+        "content": "01 unidade",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    },
+    {
+      "id": 5406,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "ai",
+        "content": "*PEDIDO* #PED20251118000070  \nCliente: Marcelo de Tarso Vieira🇧🇼  \n\n*Itens (1)*  \n* Joelho 90 Graus Soldável 25 mm TIGRE | 1 x R$ 0,89 = R$ 0,89*  \n  Cód: 51705  \n\n*Subtotal:* R$ 0,89  \n\n*Frete:* R$ 0,00  \n\n*Total:* R$ 0,89  \n\nPedido atualizado. Deseja adicionar mais itens ou prosseguir para o cálculo de frete/retirada? Esse joelho é ótimo para tubulações PVC – quer que eu busque opções de tubos ou colas para solda que combinam com ele?",
+        "tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "invalid_tool_calls": []
+      }
+    },
+    {
+      "id": 5407,
+      "session_id": "5511960620053",
+      "message": {
+        "type": "human",
+        "content": "só isso",
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    }
+  ]
