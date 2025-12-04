@@ -1,0 +1,146 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gethistories",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "f690605e-47d4-4f7e-8390-c163133df47a",
+      "name": "Webhook",
+      "webhookId": "159479e2-d9c7-463b-82d4-8e2c26f78f2a"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, session_id, message, created_at\nFROM n8n_chat_histories\nORDER BY created_at ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        848,
+        -128
+      ],
+      "id": "361adca4-d2ff-41bc-b712-b58345a9de84",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "GkS2oDjJfcALxQBz",
+          "name": "Postgres copafer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Accept"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1056,
+        -128
+      ],
+      "id": "7e8ca9d0-af40-4b05-944c-3a72b1b75548",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "primary-production-ef755.up.railway.app",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+            "accept": "application/json",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-US,en;q=0.9,es-419;q=0.8,es;q=0.7,pt-PT;q=0.6,pt;q=0.5",
+            "cache-control": "no-cache",
+            "origin": "http://127.0.0.1:5500",
+            "pragma": "no-cache",
+            "priority": "u=1, i",
+            "referer": "http://127.0.0.1:5500/",
+            "sec-ch-ua": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "177.102.66.53",
+            "x-forwarded-host": "primary-production-ef755.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/us-east4-eqdc4a",
+            "x-railway-request-id": "OsW7otAmRimoC-MsBT7zVQ",
+            "x-real-ip": "177.102.66.53",
+            "x-request-start": "1764868754554"
+          },
+          "params": {},
+          "query": {},
+          "body": {},
+          "webhookUrl": "https://primary-production-ef755.up.railway.app/webhook/gethistories",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4aa220d0-13a0-487d-b925-0e74d9ad87ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "02b33dc78f42c2f4686f16a0883b0b4ceb2bdd6d3cef18808f9b2fcdef9b4d05"
+  },
+  "id": "aKHLyKjDeZHloPTO",
+  "tags": []
+}

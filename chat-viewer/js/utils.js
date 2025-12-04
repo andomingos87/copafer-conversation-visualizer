@@ -76,9 +76,18 @@ function groupBySession(messages) {
     grouped[sessionId].push(msg);
   });
   
-  // Ordena mensagens de cada sessão por ID
+  // Ordena mensagens de cada sessão por created_at (ou id como fallback)
   Object.keys(grouped).forEach(sessionId => {
-    grouped[sessionId].sort((a, b) => a.id - b.id);
+    grouped[sessionId].sort((a, b) => {
+      // Prioriza created_at se disponível, senão usa id
+      if (a.created_at && b.created_at) {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateA - dateB;
+      }
+      // Fallback para id se created_at não estiver disponível
+      return (a.id || 0) - (b.id || 0);
+    });
   });
   
   return grouped;
@@ -152,5 +161,27 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+/**
+ * Formata data para exibição
+ * @param {string} dateString - Data em formato ISO string
+ * @returns {string} - Data formatada (DD/MM/YYYY HH:mm)
+ */
+function formatDate(dateString) {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch (error) {
+    return dateString;
+  }
 }
 

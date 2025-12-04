@@ -43,10 +43,12 @@ chat-viewer/
 ├── css/
 │   └── style.css       # Estilos visuais
 ├── js/
+│   ├── config.js       # Configuração da API ⭐ NOVO
 │   ├── app.js          # Lógica principal da aplicação
-│   ├── data.js         # Dados mockup (conversas)
+│   ├── data.js         # Dados mockup (fallback)
 │   └── utils.js        # Funções utilitárias
-└── README.md           # Esta documentação
+├── README.md           # Esta documentação
+└── INTEGRACAO_API.md   # Documentação técnica da API ⭐ NOVO
 ```
 
 ## 📊 Estrutura dos dados
@@ -64,53 +66,50 @@ Cada mensagem segue o formato:
     "additional_kwargs": {},
     "response_metadata": {},
     "invalid_tool_calls": []
-  }
+  },
+  "created_at": "2025-12-04T13:45:30.000Z" // Data/hora de criação ⭐ NOVO
 }
 ```
 
-## 🔌 Conectando com API real
+## 🔌 Integração com API
 
-Para substituir os dados mockup por dados reais da API:
+O projeto já está configurado para consumir dados da API real!
 
-### 1. Modifique o arquivo `js/data.js`
+### Configuração
 
-Substitua o conteúdo por:
-
-```javascript
-// Dados serão carregados da API
-let mockData = [];
-```
-
-### 2. Modifique a função `loadData()` em `js/app.js`
+A URL da API está configurada em `js/config.js`:
 
 ```javascript
-async function loadData() {
-  try {
-    // Substitua pela URL da sua API
-    const response = await fetch('https://sua-api.com/api/conversations');
-    const data = await response.json();
-    
-    // Se a API retorna array plano (como o mockup)
-    mockData = data;
-    
-    // Se a API retorna já agrupado
-    // state.conversations = data.conversations;
-    
-    state.conversations = groupBySession(mockData);
-    state.filteredConversations = { ...state.conversations };
-    
-    populateClientFilter();
-    renderConversationList();
-  } catch (error) {
-    console.error('Erro ao carregar conversas:', error);
-    // Trate o erro conforme necessário
-  }
-}
+const API_CONFIG = {
+  BASE_URL: 'https://primary-production-ef755.up.railway.app/webhook-test/gethistories',
+  TIMEOUT: 30000,
+  USE_MOCKUP_ON_ERROR: true
+};
 ```
 
-### 3. Ajuste o CORS se necessário
+### Como funciona
 
-Se a API estiver em outro domínio, certifique-se de que o CORS está configurado corretamente no backend.
+1. **Ao carregar a página**: O app tenta buscar dados da API
+2. **Se a API responder**: Os dados são exibidos normalmente
+3. **Se a API falhar**: 
+   - Se `USE_MOCKUP_ON_ERROR` for `true`, usa dados mockup como fallback
+   - Caso contrário, exibe mensagem de erro com opção de tentar novamente
+
+### Estados da aplicação
+
+- **Loading**: Spinner exibido durante carregamento
+- **Sucesso**: Lista de conversas é renderizada
+- **Erro**: Mensagem de erro com botões "Tentar novamente" e "Usar dados de exemplo"
+
+### Troubleshooting
+
+**Erro de CORS**: Se a API estiver em outro domínio, certifique-se de que o CORS está configurado no backend.
+
+**Timeout**: O timeout padrão é de 30 segundos. Ajuste em `config.js` se necessário.
+
+**Dados não aparecem**: Verifique o console do navegador (F12) para ver erros detalhados.
+
+Para mais detalhes técnicos, consulte [INTEGRACAO_API.md](INTEGRACAO_API.md).
 
 ## 🎨 Personalização
 
@@ -142,12 +141,12 @@ Para um tema claro, inverta as cores de fundo e texto nas variáveis CSS.
 ## 📝 Notas
 
 - Os dados mockup simulam 3 conversas diferentes com cenários variados
-- As mensagens são ordenadas pelo campo `id` (assumindo ordem cronológica)
-- O campo de data/timestamp não está presente no formato atual
+- As mensagens são ordenadas pelo campo `created_at` (ordem cronológica)
+- Se `created_at` não estiver disponível, usa `id` como fallback
+- O projeto suporta fallback automático para dados mockup em caso de erro na API
 
 ## 🐛 Problemas conhecidos
 
-- Sem suporte a timestamps (ordenação por ID)
 - Não salva estado entre sessões
 - Não persiste avaliações
 

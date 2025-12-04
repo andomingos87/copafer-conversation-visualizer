@@ -20,7 +20,12 @@ const elements = {
   conversationCount: null,
   chatTitle: null,
   messageCount: null,
-  chatMessages: null
+  chatMessages: null,
+  loadingState: null,
+  errorState: null,
+  errorText: null,
+  retryButton: null,
+  useMockupButton: null
 };
 
 // ========================================
@@ -40,6 +45,11 @@ function init() {
   elements.chatTitle = document.getElementById('chatTitle');
   elements.messageCount = document.getElementById('messageCount');
   elements.chatMessages = document.getElementById('chatMessages');
+  elements.loadingState = document.getElementById('loadingState');
+  elements.errorState = document.getElementById('errorState');
+  elements.errorText = document.getElementById('errorText');
+  elements.retryButton = document.getElementById('retryButton');
+  elements.useMockupButton = document.getElementById('useMockupButton');
   
   // Carrega e processa os dados
   loadData();
@@ -49,18 +59,144 @@ function init() {
 }
 
 /**
- * Carrega os dados mockup e processa
+ * Carrega os dados da API ou mockup
  */
-function loadData() {
-  // Agrupa mensagens por session_id
+async function loadData() {
+  showLoading();
+  hideError();
+  
+  try {
+    // Cria um timeout para a requisição
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
+    
+    // Faz requisição à API
+    const response = await fetch(API_CONFIG.BASE_URL, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json'
+      },
+      mode: 'cors' // CORS configurado no backend
+    });
+    
+    clearTimeout(timeoutId);
+    
+    // Verifica se a resposta é OK
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
+    }
+    
+    // Processa os dados JSON
+    const responseData = await response.json();
+    
+    // Tenta extrair array se estiver dentro de um objeto
+    let data = responseData;
+    
+    // Se não é array direto, tenta encontrar array dentro do objeto
+    if (!Array.isArray(responseData)) {
+      // Verifica se é um objeto com propriedade que contém array
+      if (typeof responseData === 'object' && responseData !== null) {
+        // Tenta propriedades comuns que podem conter arrays
+        if (Array.isArray(responseData.data)) {
+          data = responseData.data;
+        } else if (Array.isArray(responseData.results)) {
+          data = responseData.results;
+        } else if (Array.isArray(responseData.items)) {
+          data = responseData.items;
+        } else if (Array.isArray(responseData.messages)) {
+          data = responseData.messages;
+        } else {
+          // Se não encontrou array, verifica se é um objeto único de mensagem
+          // (caso onde n8n retorna apenas um registro ao invés de array)
+          if (responseData.id && responseData.session_id && responseData.message) {
+            // É um objeto único de mensagem - converte para array
+            data = [responseData];
+          } else {
+            // Tenta pegar primeira propriedade que seja array
+            const arrayKey = Object.keys(responseData).find(key => Array.isArray(responseData[key]));
+            if (arrayKey) {
+              data = responseData[arrayKey];
+            } else {
+              throw new Error(`Resposta da API não é um array válido. Tipo recebido: ${typeof responseData}. Estrutura: ${JSON.stringify(responseData).substring(0, 200)}`);
+            }
+          }
+        }
+      } else {
+        throw new Error(`Resposta da API não é um array válido. Tipo recebido: ${typeof responseData}`);
+      }
+    }
+    
+    // Valida se agora é um array
+    if (!Array.isArray(data)) {
+      throw new Error('Não foi possível extrair um array da resposta da API');
+    }
+    
+    // Se array vazio, não usa fallback automático
+    if (data.length === 0) {
+      state.conversations = {};
+      state.filteredConversations = {};
+      populateClientFilter();
+      renderConversationList();
+      hideLoading();
+      return;
+    }
+    
+    // Processa os dados
+    state.conversations = groupBySession(data);
+    state.filteredConversations = { ...state.conversations };
+    
+    // Popula o dropdown de clientes
+    populateClientFilter();
+    
+    // Renderiza a lista de conversas
+    renderConversationList();
+    
+    hideLoading();
+    
+  } catch (error) {
+    hideLoading();
+    
+    // Detecta erro de CORS
+    const isCorsError = error.message.includes('Failed to fetch') || 
+                       error.message.includes('CORS') ||
+                       error.name === 'TypeError';
+    
+    if (isCorsError) {
+      const corsMessage = `Erro de CORS: A API não permite requisições do navegador.\n\n` +
+                         `Soluções:\n` +
+                         `1. Configure CORS no backend da API\n` +
+                         `2. Use um proxy CORS\n` +
+                         `3. Use dados de exemplo temporariamente`;
+      
+      // Se configurado para usar mockup em caso de erro
+      if (API_CONFIG.USE_MOCKUP_ON_ERROR && typeof mockData !== 'undefined') {
+        useMockupData();
+      } else {
+        showError(corsMessage);
+      }
+    } else {
+      // Outros erros
+      if (API_CONFIG.USE_MOCKUP_ON_ERROR && typeof mockData !== 'undefined') {
+        useMockupData();
+      } else {
+        showError(error.message || 'Não foi possível carregar as conversas. Verifique sua conexão e tente novamente.');
+      }
+    }
+  }
+}
+
+/**
+ * Usa dados mockup como fallback
+ */
+function useMockupData() {
   state.conversations = groupBySession(mockData);
   state.filteredConversations = { ...state.conversations };
   
-  // Popula o dropdown de clientes
   populateClientFilter();
-  
-  // Renderiza a lista de conversas
   renderConversationList();
+  
+  hideError();
 }
 
 /**
@@ -82,6 +218,20 @@ function setupEventListeners() {
       clearSearch();
     }
   });
+  
+  // Botão tentar novamente (retry)
+  if (elements.retryButton) {
+    elements.retryButton.addEventListener('click', () => {
+      loadData();
+    });
+  }
+  
+  // Botão usar dados mockup
+  if (elements.useMockupButton) {
+    elements.useMockupButton.addEventListener('click', () => {
+      useMockupData();
+    });
+  }
 }
 
 // ========================================
@@ -322,6 +472,44 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+/**
+ * Mostra o estado de loading
+ */
+function showLoading() {
+  if (elements.loadingState) {
+    elements.loadingState.style.display = 'flex';
+  }
+}
+
+/**
+ * Esconde o estado de loading
+ */
+function hideLoading() {
+  if (elements.loadingState) {
+    elements.loadingState.style.display = 'none';
+  }
+}
+
+/**
+ * Mostra o estado de erro
+ * @param {string} message - Mensagem de erro
+ */
+function showError(message) {
+  if (elements.errorState && elements.errorText) {
+    elements.errorText.textContent = message;
+    elements.errorState.style.display = 'flex';
+  }
+}
+
+/**
+ * Esconde o estado de erro
+ */
+function hideError() {
+  if (elements.errorState) {
+    elements.errorState.style.display = 'none';
+  }
 }
 
 // ========================================

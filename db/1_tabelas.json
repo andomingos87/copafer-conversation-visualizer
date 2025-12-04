@@ -1,0 +1,17 @@
+[
+  {
+    "table_name": "carrinho"
+  },
+  {
+    "table_name": "error_logs"
+  },
+  {
+    "table_name": "leads"
+  },
+  {
+    "table_name": "n8n_chat_histories"
+  },
+  {
+    "table_name": "n8n_vectors"
+  }
+]

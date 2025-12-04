@@ -1,0 +1,128 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gethistories",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        0
+      ],
+      "id": "f690605e-47d4-4f7e-8390-c163133df47a",
+      "name": "Webhook",
+      "webhookId": "159479e2-d9c7-463b-82d4-8e2c26f78f2a"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, session_id, message, created_at\nFROM n8n_chat_histories\nORDER BY created_at ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        0
+      ],
+      "id": "361adca4-d2ff-41bc-b712-b58345a9de84",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "GkS2oDjJfcALxQBz",
+          "name": "Postgres copafer"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        192
+      ],
+      "id": "f0ec1323-564a-4a06-a33c-e78319c41afa",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Accept"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "OPTIONS"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "7e8ca9d0-af40-4b05-944c-3a72b1b75548",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1239bb4d-9025-44ad-8026-4a870aef8efd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "02b33dc78f42c2f4686f16a0883b0b4ceb2bdd6d3cef18808f9b2fcdef9b4d05"
+  },
+  "id": "aKHLyKjDeZHloPTO",
+  "tags": []
+}

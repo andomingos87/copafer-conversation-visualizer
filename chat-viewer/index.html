@@ -71,8 +71,32 @@
         </div>
       </section>
     </main>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-overlay" style="display: none;">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Carregando conversas...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-overlay" style="display: none;">
+      <div class="error-message">
+        <div class="error-icon">⚠️</div>
+        <h3>Erro ao carregar conversas</h3>
+        <p id="errorText">Não foi possível conectar com a API. Verifique sua conexão e tente novamente.</p>
+        <div class="error-actions">
+          <button id="retryButton" class="btn-retry">Tentar novamente</button>
+          <button id="useMockupButton" class="btn-mockup">Usar dados de exemplo</button>
+        </div>
+      </div>
+    </div>
+      </section>
+    </main>
   </div>
 
+  <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/app.js"></script>
