@@ -37,6 +37,30 @@
           <button id="clearSearch" class="clear-btn" title="Limpar busca">×</button>
         </div>
       </div>
+      <div class="export-wrapper">
+        <button id="exportAllBtn" class="export-btn" title="Exportar todas as conversas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="export-btn-text">Exportar</span>
+        </button>
+        <div id="exportAllDropdown" class="export-dropdown">
+          <button data-format="json">
+            <span class="format-icon">{ }</span>
+            JSON
+          </button>
+          <button data-format="txt">
+            <span class="format-icon">📄</span>
+            TXT
+          </button>
+          <button data-format="csv">
+            <span class="format-icon">📊</span>
+            CSV
+          </button>
+        </div>
+      </div>
     </header>
 
     <!-- Overlay da Sidebar (mobile) -->
@@ -66,6 +90,69 @@
           </div>
         </div>
 
+        <!-- Filtro por Data -->
+        <div class="filter-section filter-section-date">
+          <div class="filter-date-header">
+            <label>Filtrar por data:</label>
+            <button id="dateFilterClear" class="filter-clear-btn" title="Limpar filtro de data" style="display: none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Limpar
+            </button>
+          </div>
+          
+          <!-- Critério de data -->
+          <div class="date-criteria">
+            <label class="criteria-label">Considerar:</label>
+            <div class="criteria-options">
+              <label class="radio-option">
+                <input type="radio" name="dateCriteria" value="last" checked>
+                <span class="radio-custom"></span>
+                <span class="radio-text">Última mensagem</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="dateCriteria" value="first">
+                <span class="radio-custom"></span>
+                <span class="radio-text">Primeira mensagem</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="dateCriteria" value="any">
+                <span class="radio-custom"></span>
+                <span class="radio-text">Qualquer mensagem</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Atalhos de período -->
+          <div class="date-shortcuts">
+            <button class="date-shortcut-btn" data-period="today">Hoje</button>
+            <button class="date-shortcut-btn" data-period="yesterday">Ontem</button>
+            <button class="date-shortcut-btn" data-period="last7days">7 dias</button>
+            <button class="date-shortcut-btn" data-period="last30days">30 dias</button>
+            <button class="date-shortcut-btn" data-period="thisMonth">Este mês</button>
+          </div>
+
+          <!-- Período personalizado -->
+          <div class="date-custom">
+            <div class="date-input-group">
+              <label for="dateFrom">De:</label>
+              <input type="date" id="dateFrom" class="date-input">
+            </div>
+            <div class="date-input-group">
+              <label for="dateTo">Até:</label>
+              <input type="date" id="dateTo" class="date-input">
+            </div>
+          </div>
+
+          <!-- Indicador de filtro ativo -->
+          <div id="dateFilterActive" class="date-filter-active" style="display: none;">
+            <span class="filter-active-icon">📅</span>
+            <span id="dateFilterActiveText">Filtro ativo</span>
+          </div>
+        </div>
+
         <div id="conversationList" class="conversation-list">
           <!-- Lista de conversas será renderizada aqui -->
         </div>
@@ -78,7 +165,32 @@
             <span class="chat-header-icon">💬</span>
             <span id="chatTitle">Selecione uma conversa</span>
           </div>
-          <span id="messageCount" class="message-count"></span>
+          <div class="chat-header-actions">
+            <span id="messageCount" class="message-count"></span>
+            <div id="exportCurrentWrapper" class="export-wrapper" style="display: none;">
+              <button id="exportCurrentBtn" class="export-btn export-btn-small" title="Exportar esta conversa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+              <div id="exportCurrentDropdown" class="export-dropdown">
+                <button data-format="json">
+                  <span class="format-icon">{ }</span>
+                  JSON
+                </button>
+                <button data-format="txt">
+                  <span class="format-icon">📄</span>
+                  TXT
+                </button>
+                <button data-format="csv">
+                  <span class="format-icon">📊</span>
+                  CSV
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="chatMessages" class="chat-messages">

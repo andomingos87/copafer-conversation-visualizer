@@ -1,0 +1,322 @@
+{
+  "exportedAt": "2025-12-10T12:01:47.979Z",
+  "exportedAtFormatted": "10/12/2025 09:01",
+  "totalConversations": 1,
+  "totalMessages": 26,
+  "conversations": {
+    "5511957546728": [
+      {
+        "id": 5474,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Ótimo, Raphael! Endereço completo e cadastrado:  \n*Rua Adib Auada, 27 - Casa*  \n*Jardim Lambreta, Cotia/SP, CEP 06710-700*  \n\nSó falta o *E-mail* para emissão da nota fiscal e prosseguir. Pode me passar?  \n\nAssim que tiver, confirmo tudo e pergunto se prefere *entrega* nesse endereço ou *retirada* em loja (Santo André ou Mauá, grátis e em 1 dia útil)! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5463,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "O primeiro",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5464,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Ótimo, CR! O *Chuveiro Duo Shower Eletrônico 220V/7500W Lorenzetti* (cód. *258105*) é uma excelente escolha, com R$ *333,10* a unidade.\n\nQuantas unidades você quer no carrinho? Me diz que eu adiciono agora e mostro o resumo! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5471,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Raphael barone\n\n47034801827\n\n06710700",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5472,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Perfeito, Raphael Barone! CPF *47034801827* cadastrado.  \n\nPelo CEP *06710-700*, o endereço é:  \n*Rua Adib Auada*  \n*Bairro:* Jardim Lambreta  \n*Cotia/SP*  \n\nEstá correto? Me confirma e me passa:  \n- *Número* e *complemento* (se tiver)  \n- *E-mail*  \n\nAssim finalizo o cadastro e calculamos frete ou retirada! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5479,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Retirads",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5480,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "*Opções de loja para retirada:*\n\n1. Copafer Santo André:  \nEndereço: Av. dos Estados, 4.555 - Santa Terezinha, Santo André/SP  \nHorário de Funcionamento: Seg–Sáb 07:30–21:00 | Dom/Feriados 08:30–19:00  \n\n2. Copafer Mauá:  \nEndereço: Av. Comendador Wolthers, 142 - Capuava, Mauá/SP  \nHorário de Funcionamento: Seg–Sáb 07:30–21:00 | Dom/Feriados 08:30–19:00  \n\nEm qual delas fica melhor para retirar o seu pedido? Após confirmação, você poderá retirar em 1 dia útil. 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5465,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Uma só",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5466,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "*PEDIDO* #PED20251121000074  \nCliente: CR  \n\n*Itens (1)*  \n*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI* | 1 x R$ 333,10 = R$ 333,10  \nCód: 258105  \n\n*Subtotal:* R$ 333,10  \n\n*Frete:* R$ 0,00  \n\n*Total:* R$ 333,10  \n\nPedido atualizado! Perfeito, já está no carrinho.  \n\nQuer adicionar mais itens, como suporte para chuveiro ou flexível? Ou prefere calcular frete/entrega agora?",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5473,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Casa 27",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5481,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Qual das unidades é melhor",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5459,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Oi",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5460,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Oi, CR! Tudo bem? 😊  \nEm que posso auxiliar hoje? Procurando algum produto ou orçamento?",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5467,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Só quero isso mesmo",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5468,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Perfeito, CR! Vamos finalizar esse pedido rapidinho então.\n\nAntes de prosseguirmos para o pagamento, só confirmando: esse atendimento é para *Pessoa Física (PF)* ou *Jurídica (PJ)*?",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5475,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Não tenho email",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5476,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Raphael, entendi! O e-mail é obrigatório para emitir a nota fiscal eletrônica (NF-e) e enviar o link de pagamento seguro (com confirmação instantânea). \n\nPode criar um rapidinho no Gmail ou outro serviço? Assim finalizo tudo e mostro as opções de *entrega* ou *retirada em loja* (grátis, em 1 dia útil). Me passa que prosseguimos! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5482,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Raphael, considerando que você está em Cotia/SP, a unidade de *Santo André* fica mais próxima (cerca de 35km, fácil acesso pela Marginal ou Anchieta). Mauá é um pouquinho mais distante (cerca de 45km).\n\nQual das duas prefere? Me confirma que eu atualizo o carrinho com *retirada grátis em 1 dia útil*! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5461,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Vc tem chuveiros?",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5462,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Sim, temos vários modelos de chuveiros disponíveis! Aqui vão 3 opções populares com estoque:\n\n*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI*  \nDucha e chuveiro em um só, com controle preciso de temperatura para um banho relaxante e uniforme.  \n*Preço:* R$ 333,10  \n*Cód. Copafer:* 258105  \n\n*CHUVEIRO COM DESVIADOR E DUCHA MANUAL MAX CR DECA*  \nJato concentrado e uniforme, fácil de limpar, ideal para maior conforto em baixa ou alta pressão.  \n*Preço:* R$ 551,90  \n*Cód. Copafer:* 691240  \n\n*CHUVEIRO DUO SHOWER TURBO ELETRÔNICO 220V/7500W LORENZETTI*  \nPressurizador embutido para mais volume de água, banho forte e aconchegante em todo o corpo.  \n*Preço:* R$ 472,59  \n*Cód. Copafer:* 258172  \n\nQual desses te interessa? Quantas unidades quer ou prefere ver mais opções/ficha técnica?",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5469,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Pf",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5470,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Entendi, CR! Para finalizar o pedido, preciso de alguns dados seus (obrigatórios para emissão da nota fiscal e entrega/pagamento). Pode me passar?\n\n*Nome completo*  \n*E-mail*  \n*CPF* (só números)  \n*CEP* do endereço de entrega (ou retirada)\n\nAssim que tiver, atualizo tudo e mostro o resumo com frete ou retirada em loja! 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5477,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "Tupandir@tupandir.tutu",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5478,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "Perfeito, Raphael! Dados cadastrados e atualizados com sucesso. 😊  \n\nAgora, como quer receber o chuveiro?  \n*Entrega* no seu endereço em Cotia/SP (calculo o frete rapidinho)  \n*OU Retirada grátis* em loja (Santo André ou Mauá, pronto em 1 dia útil)?  \n\nMe diz qual prefere!",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5483,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "human",
+          "content": "St andre",
+          "additional_kwargs": {},
+          "response_metadata": {}
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      },
+      {
+        "id": 5484,
+        "session_id": "5511957546728",
+        "message": {
+          "type": "ai",
+          "content": "*PEDIDO* #PED20251121000074  \nCliente: Raphael Barone  \n\n*Itens (1)*  \n*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI* | 1 x R$ 333,10 = R$ 333,10  \nCód: 258105  \n\n*Subtotal:* R$ 333,10  \n\n*Frete:* R$ 0,00 (Retirada na Copafer Santo André)  \n\n*Total:* R$ 333,10  \n\nPedido atualizado com *retirada grátis em 1 dia útil* na unidade de Santo André!  \n\nTudo certo com o resumo? Confirma para prosseguirmos ao pagamento? Para agilizar, o *Pix tem aprovação imediata*. Prefere Pix ou Cartão? 😊",
+          "tool_calls": [],
+          "additional_kwargs": {},
+          "response_metadata": {},
+          "invalid_tool_calls": []
+        },
+        "created_at": "2025-12-04T16:47:21.614Z"
+      }
+    ]
+  }
+}

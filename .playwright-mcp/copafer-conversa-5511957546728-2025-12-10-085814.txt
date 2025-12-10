@@ -1,0 +1,198 @@
+==================================================
+COPAFER - EXPORTAÇÃO DE CONVERSAS
+==================================================
+
+Data da exportação: 10/12/2025 08:58
+Total de conversas: 1
+Total de mensagens: 26
+
+==================================================
+CONVERSA: +55 (11) 95754-6728
+Session ID: 5511957546728
+Total de mensagens: 26
+==================================================
+
+[13:47:21] 🤖 Copafer IA
+Ótimo, Raphael! Endereço completo e cadastrado:  
+*Rua Adib Auada, 27 - Casa*  
+*Jardim Lambreta, Cotia/SP, CEP 06710-700*  
+
+Só falta o *E-mail* para emissão da nota fiscal e prosseguir. Pode me passar?  
+
+Assim que tiver, confirmo tudo e pergunto se prefere *entrega* nesse endereço ou *retirada* em loja (Santo André ou Mauá, grátis e em 1 dia útil)! 😊
+
+[13:47:21] 👤 Cliente
+O primeiro
+
+[13:47:21] 🤖 Copafer IA
+Ótimo, CR! O *Chuveiro Duo Shower Eletrônico 220V/7500W Lorenzetti* (cód. *258105*) é uma excelente escolha, com R$ *333,10* a unidade.
+
+Quantas unidades você quer no carrinho? Me diz que eu adiciono agora e mostro o resumo! 😊
+
+[13:47:21] 👤 Cliente
+Raphael barone
+
+47034801827
+
+06710700
+
+[13:47:21] 🤖 Copafer IA
+Perfeito, Raphael Barone! CPF *47034801827* cadastrado.  
+
+Pelo CEP *06710-700*, o endereço é:  
+*Rua Adib Auada*  
+*Bairro:* Jardim Lambreta  
+*Cotia/SP*  
+
+Está correto? Me confirma e me passa:  
+- *Número* e *complemento* (se tiver)  
+- *E-mail*  
+
+Assim finalizo o cadastro e calculamos frete ou retirada! 😊
+
+[13:47:21] 👤 Cliente
+Retirads
+
+[13:47:21] 🤖 Copafer IA
+*Opções de loja para retirada:*
+
+1. Copafer Santo André:  
+Endereço: Av. dos Estados, 4.555 - Santa Terezinha, Santo André/SP  
+Horário de Funcionamento: Seg–Sáb 07:30–21:00 | Dom/Feriados 08:30–19:00  
+
+2. Copafer Mauá:  
+Endereço: Av. Comendador Wolthers, 142 - Capuava, Mauá/SP  
+Horário de Funcionamento: Seg–Sáb 07:30–21:00 | Dom/Feriados 08:30–19:00  
+
+Em qual delas fica melhor para retirar o seu pedido? Após confirmação, você poderá retirar em 1 dia útil. 😊
+
+[13:47:21] 👤 Cliente
+Uma só
+
+[13:47:21] 🤖 Copafer IA
+*PEDIDO* #PED20251121000074  
+Cliente: CR  
+
+*Itens (1)*  
+*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI* | 1 x R$ 333,10 = R$ 333,10  
+Cód: 258105  
+
+*Subtotal:* R$ 333,10  
+
+*Frete:* R$ 0,00  
+
+*Total:* R$ 333,10  
+
+Pedido atualizado! Perfeito, já está no carrinho.  
+
+Quer adicionar mais itens, como suporte para chuveiro ou flexível? Ou prefere calcular frete/entrega agora?
+
+[13:47:21] 👤 Cliente
+Casa 27
+
+[13:47:21] 👤 Cliente
+Qual das unidades é melhor
+
+[13:47:21] 👤 Cliente
+Oi
+
+[13:47:21] 🤖 Copafer IA
+Oi, CR! Tudo bem? 😊  
+Em que posso auxiliar hoje? Procurando algum produto ou orçamento?
+
+[13:47:21] 👤 Cliente
+Só quero isso mesmo
+
+[13:47:21] 🤖 Copafer IA
+Perfeito, CR! Vamos finalizar esse pedido rapidinho então.
+
+Antes de prosseguirmos para o pagamento, só confirmando: esse atendimento é para *Pessoa Física (PF)* ou *Jurídica (PJ)*?
+
+[13:47:21] 👤 Cliente
+Não tenho email
+
+[13:47:21] 🤖 Copafer IA
+Raphael, entendi! O e-mail é obrigatório para emitir a nota fiscal eletrônica (NF-e) e enviar o link de pagamento seguro (com confirmação instantânea). 
+
+Pode criar um rapidinho no Gmail ou outro serviço? Assim finalizo tudo e mostro as opções de *entrega* ou *retirada em loja* (grátis, em 1 dia útil). Me passa que prosseguimos! 😊
+
+[13:47:21] 🤖 Copafer IA
+Raphael, considerando que você está em Cotia/SP, a unidade de *Santo André* fica mais próxima (cerca de 35km, fácil acesso pela Marginal ou Anchieta). Mauá é um pouquinho mais distante (cerca de 45km).
+
+Qual das duas prefere? Me confirma que eu atualizo o carrinho com *retirada grátis em 1 dia útil*! 😊
+
+[13:47:21] 👤 Cliente
+Vc tem chuveiros?
+
+[13:47:21] 🤖 Copafer IA
+Sim, temos vários modelos de chuveiros disponíveis! Aqui vão 3 opções populares com estoque:
+
+*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI*  
+Ducha e chuveiro em um só, com controle preciso de temperatura para um banho relaxante e uniforme.  
+*Preço:* R$ 333,10  
+*Cód. Copafer:* 258105  
+
+*CHUVEIRO COM DESVIADOR E DUCHA MANUAL MAX CR DECA*  
+Jato concentrado e uniforme, fácil de limpar, ideal para maior conforto em baixa ou alta pressão.  
+*Preço:* R$ 551,90  
+*Cód. Copafer:* 691240  
+
+*CHUVEIRO DUO SHOWER TURBO ELETRÔNICO 220V/7500W LORENZETTI*  
+Pressurizador embutido para mais volume de água, banho forte e aconchegante em todo o corpo.  
+*Preço:* R$ 472,59  
+*Cód. Copafer:* 258172  
+
+Qual desses te interessa? Quantas unidades quer ou prefere ver mais opções/ficha técnica?
+
+[13:47:21] 👤 Cliente
+Pf
+
+[13:47:21] 🤖 Copafer IA
+Entendi, CR! Para finalizar o pedido, preciso de alguns dados seus (obrigatórios para emissão da nota fiscal e entrega/pagamento). Pode me passar?
+
+*Nome completo*  
+*E-mail*  
+*CPF* (só números)  
+*CEP* do endereço de entrega (ou retirada)
+
+Assim que tiver, atualizo tudo e mostro o resumo com frete ou retirada em loja! 😊
+
+[13:47:21] 👤 Cliente
+Tupandir@tupandir.tutu
+
+[13:47:21] 🤖 Copafer IA
+Perfeito, Raphael! Dados cadastrados e atualizados com sucesso. 😊  
+
+Agora, como quer receber o chuveiro?  
+*Entrega* no seu endereço em Cotia/SP (calculo o frete rapidinho)  
+*OU Retirada grátis* em loja (Santo André ou Mauá, pronto em 1 dia útil)?  
+
+Me diz qual prefere!
+
+[13:47:21] 👤 Cliente
+St andre
+
+[13:47:21] 🤖 Copafer IA
+*PEDIDO* #PED20251121000074  
+Cliente: Raphael Barone  
+
+*Itens (1)*  
+*CHUVEIRO DUO SHOWER ELETRÔNICO 220V/7500W LORENZETTI* | 1 x R$ 333,10 = R$ 333,10  
+Cód: 258105  
+
+*Subtotal:* R$ 333,10  
+
+*Frete:* R$ 0,00 (Retirada na Copafer Santo André)  
+
+*Total:* R$ 333,10  
+
+Pedido atualizado com *retirada grátis em 1 dia útil* na unidade de Santo André!  
+
+Tudo certo com o resumo? Confirma para prosseguirmos ao pagamento? Para agilizar, o *Pix tem aprovação imediata*. Prefere Pix ou Cartão? 😊
+
+--------------------------------------------------
+
+
+==================================================
+FIM DA EXPORTAÇÃO
+==================================================

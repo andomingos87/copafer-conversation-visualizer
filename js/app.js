@@ -10,7 +10,15 @@ const state = {
   searchTerm: '',           // Termo de busca atual
   clientFilter: '',         // Filtro de cliente atual
   availableClients: [],     // Lista de clientes disponíveis para autocomplete
-  autocompleteHighlightedIndex: -1 // Índice da opção destacada no autocomplete
+  autocompleteHighlightedIndex: -1, // Índice da opção destacada no autocomplete
+  // Filtro de data
+  dateFilter: {
+    active: false,          // Se o filtro de data está ativo
+    startDate: null,        // Data de início (Date object)
+    endDate: null,          // Data de fim (Date object)
+    criteria: 'last',       // Critério: 'first', 'last', 'any'
+    period: null            // Período selecionado (today, yesterday, etc.) ou 'custom'
+  }
 };
 
 // Referências aos elementos do DOM
@@ -34,7 +42,21 @@ const elements = {
   menuToggle: null,
   sidebar: null,
   sidebarClose: null,
-  sidebarOverlay: null
+  sidebarOverlay: null,
+  // Elementos de exportação
+  exportAllBtn: null,
+  exportAllDropdown: null,
+  exportCurrentWrapper: null,
+  exportCurrentBtn: null,
+  exportCurrentDropdown: null,
+  // Elementos do filtro de data
+  dateFilterClear: null,
+  dateCriteriaInputs: null,
+  dateShortcutBtns: null,
+  dateFrom: null,
+  dateTo: null,
+  dateFilterActive: null,
+  dateFilterActiveText: null
 };
 
 // ========================================
@@ -66,6 +88,20 @@ function init() {
   elements.sidebar = document.getElementById('sidebar');
   elements.sidebarClose = document.getElementById('sidebarClose');
   elements.sidebarOverlay = document.getElementById('sidebarOverlay');
+  // Elementos de exportação
+  elements.exportAllBtn = document.getElementById('exportAllBtn');
+  elements.exportAllDropdown = document.getElementById('exportAllDropdown');
+  elements.exportCurrentWrapper = document.getElementById('exportCurrentWrapper');
+  elements.exportCurrentBtn = document.getElementById('exportCurrentBtn');
+  elements.exportCurrentDropdown = document.getElementById('exportCurrentDropdown');
+  // Elementos do filtro de data
+  elements.dateFilterClear = document.getElementById('dateFilterClear');
+  elements.dateCriteriaInputs = document.querySelectorAll('input[name="dateCriteria"]');
+  elements.dateShortcutBtns = document.querySelectorAll('.date-shortcut-btn');
+  elements.dateFrom = document.getElementById('dateFrom');
+  elements.dateTo = document.getElementById('dateTo');
+  elements.dateFilterActive = document.getElementById('dateFilterActive');
+  elements.dateFilterActiveText = document.getElementById('dateFilterActiveText');
   
   // Carrega e processa os dados
   loadData();
@@ -236,6 +272,10 @@ function setupEventListeners() {
     if (!e.target.closest('.autocomplete-wrapper')) {
       hideClientFilterDropdown();
     }
+    // Fecha dropdowns de exportação ao clicar fora
+    if (!e.target.closest('.export-wrapper')) {
+      hideAllExportDropdowns();
+    }
   });
   
   // Tecla Enter no campo de busca
@@ -283,6 +323,12 @@ function setupEventListeners() {
   
   // Detectar mudança de tamanho da tela
   window.addEventListener('resize', debounce(handleResize, 150));
+  
+  // Configura exportação
+  setupExportListeners();
+  
+  // Configura filtro de data
+  setupDateFilterListeners();
 }
 
 // ========================================
@@ -377,6 +423,9 @@ function renderMessages(sessionId) {
   // Atualiza header do chat
   elements.chatTitle.textContent = formatPhoneNumber(sessionId);
   elements.messageCount.textContent = `${messages.length} mensagens`;
+  
+  // Mostra botão de exportar conversa atual
+  toggleExportCurrentButton(true);
   
   // Limpa mensagens anteriores
   elements.chatMessages.innerHTML = '';
@@ -750,6 +799,16 @@ function applyFilters() {
     };
   }
   
+  // Aplica filtro de data
+  if (state.dateFilter.active && state.dateFilter.startDate && state.dateFilter.endDate) {
+    filtered = filterConversationsByDate(
+      filtered,
+      state.dateFilter.startDate,
+      state.dateFilter.endDate,
+      state.dateFilter.criteria
+    );
+  }
+  
   // Aplica filtro de busca
   if (state.searchTerm) {
     filtered = filterConversationsBySearch(filtered, state.searchTerm);
@@ -773,6 +832,374 @@ function applyFilters() {
     `;
     elements.chatTitle.textContent = 'Selecione uma conversa';
     elements.messageCount.textContent = '';
+    toggleExportCurrentButton(false);
+  }
+}
+
+// ========================================
+// FILTRO DE DATA
+// ========================================
+
+/**
+ * Configura listeners para o filtro de data
+ */
+function setupDateFilterListeners() {
+  // Botão limpar filtro de data
+  if (elements.dateFilterClear) {
+    elements.dateFilterClear.addEventListener('click', clearDateFilter);
+  }
+  
+  // Critério de data (radio buttons)
+  if (elements.dateCriteriaInputs) {
+    elements.dateCriteriaInputs.forEach(input => {
+      input.addEventListener('change', handleDateCriteriaChange);
+    });
+  }
+  
+  // Atalhos de período
+  if (elements.dateShortcutBtns) {
+    elements.dateShortcutBtns.forEach(btn => {
+      btn.addEventListener('click', handleDateShortcutClick);
+    });
+  }
+  
+  // Campos de data personalizada
+  if (elements.dateFrom) {
+    elements.dateFrom.addEventListener('change', handleCustomDateChange);
+  }
+  if (elements.dateTo) {
+    elements.dateTo.addEventListener('change', handleCustomDateChange);
+  }
+}
+
+/**
+ * Handler para mudança no critério de data
+ */
+function handleDateCriteriaChange(e) {
+  state.dateFilter.criteria = e.target.value;
+  
+  // Se já houver um filtro ativo, reaplica com novo critério
+  if (state.dateFilter.active) {
+    applyFilters();
+  }
+}
+
+/**
+ * Handler para clique nos atalhos de período
+ */
+function handleDateShortcutClick(e) {
+  const period = e.target.dataset.period;
+  
+  // Remove classe active de todos os botões
+  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  
+  // Adiciona classe active ao botão clicado
+  e.target.classList.add('active');
+  
+  // Obtém o período
+  const dateRange = getDatePeriod(period);
+  
+  if (dateRange) {
+    // Atualiza estado
+    state.dateFilter.active = true;
+    state.dateFilter.startDate = dateRange.startDate;
+    state.dateFilter.endDate = dateRange.endDate;
+    state.dateFilter.period = period;
+    
+    // Atualiza campos de data personalizada para refletir o período
+    updateCustomDateInputs(dateRange.startDate, dateRange.endDate);
+    
+    // Mostra indicador de filtro ativo
+    showDateFilterActive(period);
+    
+    // Aplica filtros
+    applyFilters();
+  }
+}
+
+/**
+ * Handler para mudança nos campos de data personalizada
+ */
+function handleCustomDateChange() {
+  const fromValue = elements.dateFrom.value;
+  const toValue = elements.dateTo.value;
+  
+  // Remove classe active dos atalhos
+  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  
+  // Se ambas as datas estiverem preenchidas
+  if (fromValue && toValue) {
+    const startDate = startOfDay(new Date(fromValue + 'T00:00:00'));
+    const endDate = endOfDay(new Date(toValue + 'T00:00:00'));
+    
+    // Valida se a data inicial é menor ou igual à final
+    if (startDate > endDate) {
+      // Troca as datas se estiverem invertidas
+      state.dateFilter.startDate = endDate;
+      state.dateFilter.endDate = startDate;
+      
+      // Atualiza os inputs
+      elements.dateFrom.value = formatDateForInput(endDate);
+      elements.dateTo.value = formatDateForInput(startDate);
+    } else {
+      state.dateFilter.startDate = startDate;
+      state.dateFilter.endDate = endDate;
+    }
+    
+    state.dateFilter.active = true;
+    state.dateFilter.period = 'custom';
+    
+    // Mostra indicador de filtro ativo
+    showDateFilterActive('custom', state.dateFilter.startDate, state.dateFilter.endDate);
+    
+    // Aplica filtros
+    applyFilters();
+  } else if (fromValue || toValue) {
+    // Se apenas uma data estiver preenchida, aguarda a outra
+    // Mas ainda marca como filtro ativo parcial
+    state.dateFilter.active = false;
+    hideDateFilterActive();
+  } else {
+    // Se ambas estiverem vazias, desativa o filtro
+    state.dateFilter.active = false;
+    state.dateFilter.startDate = null;
+    state.dateFilter.endDate = null;
+    state.dateFilter.period = null;
+    hideDateFilterActive();
+    applyFilters();
+  }
+}
+
+/**
+ * Atualiza os campos de data personalizada
+ * @param {Date} startDate - Data de início
+ * @param {Date} endDate - Data de fim
+ */
+function updateCustomDateInputs(startDate, endDate) {
+  if (elements.dateFrom && startDate) {
+    elements.dateFrom.value = formatDateForInput(startDate);
+  }
+  if (elements.dateTo && endDate) {
+    elements.dateTo.value = formatDateForInput(endDate);
+  }
+}
+
+/**
+ * Formata data para input type="date" (YYYY-MM-DD)
+ * @param {Date} date - Data a formatar
+ * @returns {string} - Data formatada
+ */
+function formatDateForInput(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Mostra o indicador de filtro de data ativo
+ * @param {string} period - Período selecionado
+ * @param {Date} [startDate] - Data de início (para período custom)
+ * @param {Date} [endDate] - Data de fim (para período custom)
+ */
+function showDateFilterActive(period, startDate, endDate) {
+  if (elements.dateFilterActive && elements.dateFilterActiveText) {
+    let text = getPeriodLabel(period);
+    
+    if (period === 'custom' && startDate && endDate) {
+      text = `${formatDateShort(startDate)} a ${formatDateShort(endDate)}`;
+    }
+    
+    elements.dateFilterActiveText.textContent = text;
+    elements.dateFilterActive.style.display = 'flex';
+  }
+  
+  // Mostra botão limpar
+  if (elements.dateFilterClear) {
+    elements.dateFilterClear.style.display = 'flex';
+  }
+}
+
+/**
+ * Esconde o indicador de filtro de data ativo
+ */
+function hideDateFilterActive() {
+  if (elements.dateFilterActive) {
+    elements.dateFilterActive.style.display = 'none';
+  }
+  if (elements.dateFilterClear) {
+    elements.dateFilterClear.style.display = 'none';
+  }
+}
+
+/**
+ * Limpa o filtro de data
+ */
+function clearDateFilter() {
+  // Reseta estado
+  state.dateFilter.active = false;
+  state.dateFilter.startDate = null;
+  state.dateFilter.endDate = null;
+  state.dateFilter.period = null;
+  
+  // Remove classe active dos atalhos
+  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  
+  // Limpa campos de data
+  if (elements.dateFrom) elements.dateFrom.value = '';
+  if (elements.dateTo) elements.dateTo.value = '';
+  
+  // Esconde indicador
+  hideDateFilterActive();
+  
+  // Reaplica filtros
+  applyFilters();
+}
+
+// ========================================
+// EXPORTAÇÃO
+// ========================================
+
+/**
+ * Configura listeners para exportação
+ */
+function setupExportListeners() {
+  // Botão exportar todas conversas
+  if (elements.exportAllBtn) {
+    elements.exportAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleExportDropdown(elements.exportAllDropdown);
+    });
+  }
+  
+  // Opções do dropdown de exportar todas
+  if (elements.exportAllDropdown) {
+    elements.exportAllDropdown.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const format = btn.dataset.format;
+        handleExportAll(format);
+        hideAllExportDropdowns();
+      });
+    });
+  }
+  
+  // Botão exportar conversa atual
+  if (elements.exportCurrentBtn) {
+    elements.exportCurrentBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleExportDropdown(elements.exportCurrentDropdown);
+    });
+  }
+  
+  // Opções do dropdown de exportar conversa atual
+  if (elements.exportCurrentDropdown) {
+    elements.exportCurrentDropdown.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const format = btn.dataset.format;
+        handleExportCurrent(format);
+        hideAllExportDropdowns();
+      });
+    });
+  }
+}
+
+/**
+ * Alterna visibilidade do dropdown de exportação
+ * @param {HTMLElement} dropdown - Elemento do dropdown
+ */
+function toggleExportDropdown(dropdown) {
+  if (!dropdown) return;
+  
+  // Fecha outros dropdowns primeiro
+  const allDropdowns = document.querySelectorAll('.export-dropdown');
+  allDropdowns.forEach(d => {
+    if (d !== dropdown) {
+      d.classList.remove('show');
+    }
+  });
+  
+  // Alterna o dropdown atual
+  dropdown.classList.toggle('show');
+}
+
+/**
+ * Esconde todos os dropdowns de exportação
+ */
+function hideAllExportDropdowns() {
+  const allDropdowns = document.querySelectorAll('.export-dropdown');
+  allDropdowns.forEach(d => d.classList.remove('show'));
+}
+
+/**
+ * Exporta todas as conversas filtradas
+ * @param {string} format - Formato de exportação (json, txt, csv)
+ */
+function handleExportAll(format) {
+  const conversations = state.filteredConversations;
+  
+  if (Object.keys(conversations).length === 0) {
+    alert('Não há conversas para exportar.');
+    return;
+  }
+  
+  switch (format) {
+    case 'json':
+      exportToJSON(conversations, null);
+      break;
+    case 'txt':
+      exportToTXT(conversations, null);
+      break;
+    case 'csv':
+      exportToCSV(conversations, null);
+      break;
+    default:
+      console.error('Formato de exportação não suportado:', format);
+  }
+}
+
+/**
+ * Exporta a conversa selecionada
+ * @param {string} format - Formato de exportação (json, txt, csv)
+ */
+function handleExportCurrent(format) {
+  if (!state.selectedSession) {
+    alert('Nenhuma conversa selecionada.');
+    return;
+  }
+  
+  const conversations = {
+    [state.selectedSession]: state.filteredConversations[state.selectedSession]
+  };
+  
+  if (!conversations[state.selectedSession]) {
+    alert('Conversa não encontrada.');
+    return;
+  }
+  
+  switch (format) {
+    case 'json':
+      exportToJSON(conversations, state.selectedSession);
+      break;
+    case 'txt':
+      exportToTXT(conversations, state.selectedSession);
+      break;
+    case 'csv':
+      exportToCSV(conversations, state.selectedSession);
+      break;
+    default:
+      console.error('Formato de exportação não suportado:', format);
+  }
+}
+
+/**
+ * Mostra ou esconde o botão de exportar conversa atual
+ * @param {boolean} show - Se deve mostrar ou esconder
+ */
+function toggleExportCurrentButton(show) {
+  if (elements.exportCurrentWrapper) {
+    elements.exportCurrentWrapper.style.display = show ? 'inline-flex' : 'none';
   }
 }
 
