@@ -382,6 +382,13 @@ function renderConversationList() {
     const preview = getConversationPreview(messages);
     const isActive = state.selectedSession === sessionId;
     
+    // Obtém a data da última mensagem da conversa
+    let conversationDate = '';
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.created_at) {
+      conversationDate = formatDateOnly(lastMessage.created_at);
+    }
+    
     const item = document.createElement('div');
     item.className = `conversation-item${isActive ? ' active' : ''}`;
     item.dataset.sessionId = sessionId;
@@ -391,6 +398,7 @@ function renderConversationList() {
       <div class="conversation-info">
         <div class="conversation-number">${formatPhoneNumber(sessionId)}</div>
         <div class="conversation-preview">${escapeHtml(preview)}</div>
+        ${conversationDate ? `<div class="conversation-date">${conversationDate}</div>` : ''}
       </div>
       <div class="conversation-meta">
         <span class="conversation-count">${messages.length} msgs</span>
@@ -444,10 +452,12 @@ function renderMessages(sessionId) {
       content = highlightText(content, state.searchTerm);
     }
     
-    // Obtém o horário da mensagem
+    // Obtém o horário e data da mensagem
     let messageTime = '';
+    let messageDate = '';
     if (msg.created_at) {
       messageTime = formatTime(msg.created_at);
+      messageDate = formatDateOnly(msg.created_at);
     } else {
       // Se não houver created_at, gera um horário baseado no índice (para dados mockup)
       // Simula horários incrementais para visualização
@@ -455,12 +465,18 @@ function renderMessages(sessionId) {
       baseDate.setHours(9, 0, 0); // Começa às 09:00:00
       baseDate.setSeconds(baseDate.getSeconds() + (index * 30)); // Incrementa 30 segundos por mensagem
       messageTime = formatTime(baseDate.toISOString());
+      messageDate = formatDateOnly(baseDate.toISOString());
     }
     
     // Se ainda não tiver horário, usa horário atual
     if (!messageTime) {
-      messageTime = formatTime(new Date().toISOString());
+      const now = new Date();
+      messageTime = formatTime(now.toISOString());
+      messageDate = formatDateOnly(now.toISOString());
     }
+    
+    // Formata data e horário juntos
+    const dateTimeDisplay = messageDate ? `${messageDate} ${messageTime}` : messageTime;
     
     const messageEl = document.createElement('div');
     messageEl.className = `message ${type}`;
@@ -471,7 +487,7 @@ function renderMessages(sessionId) {
     messageEl.innerHTML = `
       <div class="message-header">
         <div class="message-sender">${senderLabel}</div>
-        <div class="message-time">${messageTime}</div>
+        <div class="message-time">${dateTimeDisplay}</div>
       </div>
       <div class="message-bubble">
         <div class="message-content">${content}</div>

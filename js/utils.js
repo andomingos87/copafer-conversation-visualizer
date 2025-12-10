@@ -199,6 +199,22 @@ function formatDateShort(date) {
 }
 
 /**
+ * Formata apenas a data a partir de uma string ISO (DD/MM/YYYY)
+ * @param {string} dateString - Data em formato ISO string
+ * @returns {string} - Data formatada (DD/MM/YYYY)
+ */
+function formatDateOnly(dateString) {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    return formatDateShort(date);
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
  * Retorna o início do dia (00:00:00)
  * @param {Date} date - Data base
  * @returns {Date} - Data no início do dia
