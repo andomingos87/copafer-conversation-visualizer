@@ -476,12 +476,24 @@ function getMessageTimeForExport(msg, index) {
  * @param {string|null} sessionId - ID da sessão (null para todas)
  */
 function exportToJSON(conversations, sessionId = null) {
+  // Obtém feedbacks do estado global se disponível
+  const feedbacks = (typeof state !== 'undefined' && state.feedbacks) ? state.feedbacks : {};
+  
+  // Adiciona feedbacks às conversas
+  const conversationsWithFeedback = {};
+  Object.keys(conversations).forEach(sessId => {
+    conversationsWithFeedback[sessId] = {
+      messages: conversations[sessId],
+      feedback: feedbacks[sessId] || null
+    };
+  });
+  
   const exportData = {
     exportedAt: new Date().toISOString(),
     exportedAtFormatted: formatDate(new Date().toISOString()),
     totalConversations: Object.keys(conversations).length,
     totalMessages: Object.values(conversations).reduce((sum, msgs) => sum + msgs.length, 0),
-    conversations: conversations
+    conversations: conversationsWithFeedback
   };
   
   const content = JSON.stringify(exportData, null, 2);
@@ -511,14 +523,34 @@ function exportToTXT(conversations, sessionId = null) {
   lines.push(`Total de mensagens: ${totalMessages}`);
   lines.push('');
   
+  // Obtém feedbacks do estado global se disponível
+  const feedbacks = (typeof state !== 'undefined' && state.feedbacks) ? state.feedbacks : {};
+  
   // Cada conversa
   Object.keys(conversations).forEach(sessId => {
     const messages = conversations[sessId];
+    const feedback = feedbacks[sessId];
     
     lines.push('='.repeat(50));
     lines.push(`CONVERSA: ${formatPhoneNumber(sessId)}`);
     lines.push(`Session ID: ${sessId}`);
     lines.push(`Total de mensagens: ${messages.length}`);
+    
+    // Adiciona feedback se existir
+    if (feedback) {
+      lines.push('');
+      lines.push('FEEDBACK:');
+      if (feedback.rating) {
+        lines.push(`  Avaliação: ${feedback.rating} estrela${feedback.rating > 1 ? 's' : ''} ${'⭐'.repeat(feedback.rating)}`);
+      }
+      if (feedback.comment) {
+        lines.push(`  Comentário: ${feedback.comment}`);
+      }
+      if (feedback.created_at) {
+        lines.push(`  Data do feedback: ${formatDate(feedback.created_at)}`);
+      }
+    }
+    
     lines.push('='.repeat(50));
     lines.push('');
     
@@ -573,13 +605,17 @@ function escapeCSV(value) {
 function exportToCSV(conversations, sessionId = null) {
   const rows = [];
   
+  // Obtém feedbacks do estado global se disponível
+  const feedbacks = (typeof state !== 'undefined' && state.feedbacks) ? state.feedbacks : {};
+  
   // Cabeçalho
-  rows.push(['Data/Hora', 'Remetente', 'Tipo', 'Conteúdo', 'Session ID', 'Telefone Formatado'].join(','));
+  rows.push(['Data/Hora', 'Remetente', 'Tipo', 'Conteúdo', 'Session ID', 'Telefone Formatado', 'Avaliação', 'Comentário'].join(','));
   
   // Cada conversa
   Object.keys(conversations).forEach(sessId => {
     const messages = conversations[sessId];
     const phoneFormatted = formatPhoneNumber(sessId);
+    const feedback = feedbacks[sessId];
     
     // Cada mensagem
     messages.forEach((msg, index) => {
@@ -588,13 +624,19 @@ function exportToCSV(conversations, sessionId = null) {
       const time = getMessageTimeForExport(msg, index);
       const sender = type === 'human' ? 'Cliente' : 'Copafer IA';
       
+      // Adiciona feedback apenas na primeira mensagem de cada conversa
+      const rating = (index === 0 && feedback && feedback.rating) ? feedback.rating : '';
+      const comment = (index === 0 && feedback && feedback.comment) ? feedback.comment : '';
+      
       const row = [
         escapeCSV(time),
         escapeCSV(sender),
         escapeCSV(type),
         escapeCSV(content),
         escapeCSV(sessId),
-        escapeCSV(phoneFormatted)
+        escapeCSV(phoneFormatted),
+        escapeCSV(rating),
+        escapeCSV(comment)
       ];
       
       rows.push(row.join(','));

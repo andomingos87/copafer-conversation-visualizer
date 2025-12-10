@@ -11,6 +11,7 @@ const state = {
   clientFilter: '',         // Filtro de cliente atual
   availableClients: [],     // Lista de clientes disponíveis para autocomplete
   autocompleteHighlightedIndex: -1, // Índice da opção destacada no autocomplete
+  feedbacks: {},           // Feedbacks por session_id
   // Filtro de data
   dateFilter: {
     active: false,          // Se o filtro de data está ativo
@@ -56,7 +57,9 @@ const elements = {
   dateFrom: null,
   dateTo: null,
   dateFilterActive: null,
-  dateFilterActiveText: null
+  dateFilterActiveText: null,
+  // Elementos de feedback
+  feedbackBtn: null
 };
 
 // ========================================
@@ -109,6 +112,17 @@ function init() {
   
   // Configura event listeners
   setupEventListeners();
+  
+  // Inicializa componente de feedback
+  if (typeof initFeedback === 'function') {
+    initFeedback();
+  }
+  
+  // Captura referência do botão de feedback
+  elements.feedbackBtn = document.getElementById('feedbackBtn');
+  if (elements.feedbackBtn) {
+    elements.feedbackBtn.addEventListener('click', handleFeedbackClick);
+  }
 }
 
 /**
@@ -205,6 +219,11 @@ async function loadData() {
     // Renderiza a lista de conversas
     renderConversationList();
     
+    // Carrega feedbacks de todas as conversas (assíncrono, atualiza depois)
+    loadAllFeedbacks().then(() => {
+      updateConversationListFeedbackIndicators();
+    });
+    
     hideLoading();
     
   } catch (error) {
@@ -248,6 +267,11 @@ function useMockupData() {
   
   populateClientFilter();
   renderConversationList();
+  
+  // Carrega feedbacks mesmo com dados mockup (assíncrono, atualiza depois)
+  loadAllFeedbacks().then(() => {
+    updateConversationListFeedbackIndicators();
+  });
   
   hideError();
 }
@@ -473,6 +497,14 @@ function renderMessages(sessionId) {
   // Mostra botão de exportar conversa atual
   toggleExportCurrentButton(true);
   
+  // Mostra botão de feedback
+  if (elements.feedbackBtn) {
+    elements.feedbackBtn.style.display = 'flex';
+  }
+  
+  // Carrega e atualiza feedback da conversa
+  loadConversationFeedback(sessionId);
+  
   // Limpa mensagens anteriores
   elements.chatMessages.innerHTML = '';
   
@@ -561,6 +593,115 @@ function selectConversation(sessionId) {
   if (isMobileView()) {
     closeSidebar();
   }
+}
+
+/**
+ * Handler para clique no botão de feedback
+ */
+function handleFeedbackClick() {
+  if (!state.selectedSession) {
+    return;
+  }
+  
+  if (typeof openFeedbackModal === 'function') {
+    openFeedbackModal(state.selectedSession);
+  }
+}
+
+/**
+ * Carrega feedback de uma conversa
+ * @param {string} sessionId - ID da sessão
+ */
+async function loadConversationFeedback(sessionId) {
+  if (!sessionId || typeof getFeedback !== 'function') {
+    return;
+  }
+  
+  try {
+    const feedback = await getFeedback(sessionId);
+    
+    if (feedback) {
+      state.feedbacks[sessionId] = feedback;
+      
+      // Atualiza indicador no header
+      if (elements.feedbackBtn) {
+        elements.feedbackBtn.classList.add('has-feedback');
+        elements.feedbackBtn.title = 'Editar feedback';
+      }
+    } else {
+      // Remove feedback do estado se não existir
+      delete state.feedbacks[sessionId];
+      
+      // Remove indicador do header
+      if (elements.feedbackBtn) {
+        elements.feedbackBtn.classList.remove('has-feedback');
+        elements.feedbackBtn.title = 'Adicionar feedback';
+      }
+    }
+  } catch (error) {
+    console.warn('Erro ao carregar feedback:', error);
+    // Não quebra a aplicação se houver erro
+  }
+}
+
+/**
+ * Carrega feedbacks de todas as conversas visíveis
+ */
+async function loadAllFeedbacks() {
+  const sessionIds = Object.keys(state.filteredConversations);
+  
+  if (sessionIds.length === 0 || typeof getAllFeedbacks !== 'function') {
+    return;
+  }
+  
+  try {
+    const feedbacks = await getAllFeedbacks(sessionIds);
+    state.feedbacks = { ...state.feedbacks, ...feedbacks };
+    
+    // Atualiza indicadores na lista
+    updateConversationListFeedbackIndicators();
+  } catch (error) {
+    console.warn('Erro ao carregar feedbacks:', error);
+  }
+}
+
+/**
+ * Atualiza indicadores de feedback na lista de conversas
+ */
+function updateConversationListFeedbackIndicators() {
+  Object.keys(state.feedbacks).forEach(sessionId => {
+    const feedback = state.feedbacks[sessionId];
+    const conversationItem = document.querySelector(`[data-session-id="${sessionId}"]`);
+    
+    if (!conversationItem) return;
+    
+    const hasFeedback = feedback && (feedback.rating || feedback.comment);
+    
+    // Remove indicador existente
+    const existingIndicator = conversationItem.querySelector('.conversation-feedback-indicator');
+    if (existingIndicator) {
+      existingIndicator.remove();
+    }
+    
+    // Adiciona indicador se houver feedback
+    if (hasFeedback) {
+      const indicator = document.createElement('div');
+      indicator.className = 'conversation-feedback-indicator';
+      
+      if (feedback.rating) {
+        indicator.innerHTML = '⭐'.repeat(feedback.rating);
+        indicator.title = `Avaliação: ${feedback.rating} estrela${feedback.rating > 1 ? 's' : ''}${feedback.comment ? ' | Tem comentário' : ''}`;
+      } else {
+        indicator.innerHTML = '💬';
+        indicator.title = 'Tem comentário';
+      }
+      
+      const meta = conversationItem.querySelector('.conversation-meta');
+      if (meta) {
+        meta.insertBefore(indicator, meta.firstChild);
+      }
+    }
+  });
 }
 
 /**
@@ -887,6 +1028,11 @@ function applyFilters() {
     elements.chatTitle.textContent = 'Selecione uma conversa';
     elements.messageCount.textContent = '';
     toggleExportCurrentButton(false);
+    
+    // Esconde botão de feedback
+    if (elements.feedbackBtn) {
+      elements.feedbackBtn.style.display = 'none';
+    }
   }
 }
 

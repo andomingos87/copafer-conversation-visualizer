@@ -1547,6 +1547,324 @@ body {
   animation: dropdownFadeIn 0.15s ease;
 }
 
+/* ========================================
+   FEEDBACK
+======================================== */
+
+/* Botão de feedback no header */
+.feedback-btn-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 6px;
+}
+
+.feedback-btn-header:hover {
+  background: var(--bg-sidebar);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.feedback-btn-header.has-feedback {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.feedback-btn-header svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+}
+
+.feedback-btn-header.has-feedback svg {
+  fill: currentColor;
+}
+
+/* Indicador de feedback na lista de conversas */
+.conversation-feedback-indicator {
+  font-size: 12px;
+  margin-right: 8px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+/* Modal de feedback */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.feedback-modal {
+  background: var(--bg-header);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.feedback-modal.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.feedback-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feedback-modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.feedback-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.feedback-close-btn:hover {
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+}
+
+.feedback-modal-body {
+  padding: 24px;
+}
+
+.feedback-section {
+  margin-bottom: 24px;
+}
+
+.feedback-section:last-child {
+  margin-bottom: 0;
+}
+
+.feedback-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.feedback-rating {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.feedback-star {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-star svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  transition: all 0.2s;
+}
+
+.feedback-star:hover {
+  color: var(--color-primary-light);
+  transform: scale(1.1);
+}
+
+.feedback-star.active {
+  color: var(--color-primary);
+}
+
+.feedback-star.active svg {
+  fill: var(--color-primary);
+  stroke: var(--color-primary);
+}
+
+.feedback-rating-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-height: 20px;
+}
+
+.feedback-comment {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-chat);
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s;
+}
+
+.feedback-comment:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.feedback-comment::placeholder {
+  color: var(--text-muted);
+}
+
+.feedback-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.feedback-modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.feedback-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.feedback-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  font-family: inherit;
+}
+
+.feedback-btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.feedback-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.feedback-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback-btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.feedback-btn-secondary:hover {
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .feedback-modal {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+  
+  .feedback-overlay {
+    padding: 0;
+  }
+  
+  .feedback-star {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
