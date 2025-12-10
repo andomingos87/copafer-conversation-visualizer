@@ -361,215 +361,243 @@ body {
 }
 
 /* ========================================
-   FILTRO DE DATA
+   FILTRO DE DATA - DROPDOWN COMPACTO
 ======================================== */
 .filter-section-date {
   border-bottom: 1px solid var(--border-color);
 }
 
-.filter-date-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+.date-filter-dropdown-wrapper {
+  position: relative;
+  margin-top: 8px;
 }
 
-.filter-date-header label {
-  margin-bottom: 0;
-}
-
-.filter-clear-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 11px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-clear-btn:hover {
-  background: rgba(230, 81, 0, 0.08);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.filter-clear-btn svg {
-  width: 12px;
-  height: 12px;
-}
-
-/* Critério de data */
-.date-criteria {
-  margin-bottom: 12px;
-}
-
-.criteria-label {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.criteria-options {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.radio-option {
+/* Botão Toggle do Dropdown */
+.date-filter-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  transition: background 0.15s;
-}
-
-.radio-option:hover {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.radio-option input[type="radio"] {
-  display: none;
-}
-
-.radio-custom {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
-  position: relative;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.radio-option input[type="radio"]:checked + .radio-custom {
-  border-color: var(--color-primary);
-}
-
-.radio-option input[type="radio"]:checked + .radio-custom::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  background: var(--color-primary);
-  border-radius: 50%;
-}
-
-.radio-text {
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-/* Atalhos de período */
-.date-shortcuts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.date-shortcut-btn {
-  padding: 6px 10px;
+  width: 100%;
+  padding: 10px 12px;
   background: var(--bg-dark);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  color: var(--text-secondary);
-  font-size: 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
+  text-align: left;
 }
 
-.date-shortcut-btn:hover {
+.date-filter-toggle:hover {
+  border-color: var(--color-primary);
+}
+
+.date-filter-toggle.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.15);
+}
+
+.date-filter-toggle.has-filter {
+  background: rgba(230, 81, 0, 0.08);
+  border-color: var(--color-primary);
+}
+
+.date-filter-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.date-filter-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-filter-toggle.has-filter .date-filter-label {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.date-filter-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.date-filter-toggle.active .date-filter-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Content */
+.date-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: none;
+  overflow: hidden;
+}
+
+.date-filter-dropdown.show {
+  display: block;
+  animation: dropdownSlide 0.2s ease;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Seções do Dropdown */
+.date-dropdown-section {
+  padding: 10px 12px;
+}
+
+.date-dropdown-section:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Badges de período */
+.date-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.date-badge {
+  padding: 5px 10px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.date-badge:hover {
   background: rgba(230, 81, 0, 0.08);
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
-.date-shortcut-btn.active {
+.date-badge.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
 }
 
-/* Período personalizado */
-.date-custom {
+/* Linha compacta: datas + critério */
+.date-compact-row {
   display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.date-input-group {
-  flex: 1;
+.date-custom-inline {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 4px;
+  flex: 1;
+  min-width: 150px;
 }
 
-.date-input-group label {
-  font-size: 11px;
+.date-separator {
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 0;
+  font-size: 11px;
+  padding: 0 2px;
 }
 
-.date-input {
-  width: 100%;
-  padding: 8px 10px;
+.date-input-mini {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 4px;
   background: var(--bg-dark);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 11px;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s;
 }
 
-.date-input:focus {
+.date-input-mini:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.15);
 }
 
-.date-input::-webkit-calendar-picker-indicator {
+.date-input-mini::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+  opacity: 0.5;
+  width: 12px;
+  height: 12px;
 }
 
-.date-input::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
+/* Select de critério mini */
+.date-criteria-mini {
+  padding: 6px 8px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  flex-shrink: 0;
 }
 
-/* Indicador de filtro ativo */
-.date-filter-active {
+.date-criteria-mini:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Botão limpar inline */
+.date-clear-inline {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 8px 12px;
-  background: rgba(230, 81, 0, 0.1);
-  border: 1px solid rgba(230, 81, 0, 0.25);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  color: var(--color-primary);
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.filter-active-icon {
-  font-size: 14px;
+.date-clear-inline:hover {
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+}
+
+.date-clear-inline svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* Responsividade do filtro de data */
@@ -578,28 +606,34 @@ body {
     padding: var(--spacing-sm) var(--spacing-md);
   }
 
-  .date-shortcuts {
-    gap: 4px;
+  .date-filter-toggle {
+    padding: 12px;
+    font-size: 14px;
   }
 
-  .date-shortcut-btn {
-    padding: 5px 8px;
-    font-size: 11px;
+  .date-filter-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
   }
 
-  .date-custom {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .radio-option {
-    padding: 8px;
+  .date-option-btn {
+    padding: 12px;
     min-height: var(--touch-target-min);
   }
 
-  .date-input {
+  .date-input-compact {
     font-size: 16px; /* Previne zoom em iOS */
     padding: 10px;
+  }
+
+  .date-custom-compact {
+    flex-direction: column;
   }
 }
 

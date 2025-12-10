@@ -90,66 +90,55 @@
           </div>
         </div>
 
-        <!-- Filtro por Data -->
+        <!-- Filtro por Data - Dropdown Compacto -->
         <div class="filter-section filter-section-date">
-          <div class="filter-date-header">
-            <label>Filtrar por data:</label>
-            <button id="dateFilterClear" class="filter-clear-btn" title="Limpar filtro de data" style="display: none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+          <label>Filtrar por data:</label>
+          <div class="date-filter-dropdown-wrapper">
+            <!-- Botão do Dropdown -->
+            <button id="dateFilterToggle" class="date-filter-toggle">
+              <span class="date-filter-icon">📅</span>
+              <span id="dateFilterLabel" class="date-filter-label">Selecione o período...</span>
+              <svg class="date-filter-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
-              Limpar
             </button>
-          </div>
-          
-          <!-- Critério de data -->
-          <div class="date-criteria">
-            <label class="criteria-label">Considerar:</label>
-            <div class="criteria-options">
-              <label class="radio-option">
-                <input type="radio" name="dateCriteria" value="last" checked>
-                <span class="radio-custom"></span>
-                <span class="radio-text">Última mensagem</span>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="dateCriteria" value="first">
-                <span class="radio-custom"></span>
-                <span class="radio-text">Primeira mensagem</span>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="dateCriteria" value="any">
-                <span class="radio-custom"></span>
-                <span class="radio-text">Qualquer mensagem</span>
-              </label>
-            </div>
-          </div>
 
-          <!-- Atalhos de período -->
-          <div class="date-shortcuts">
-            <button class="date-shortcut-btn" data-period="today">Hoje</button>
-            <button class="date-shortcut-btn" data-period="yesterday">Ontem</button>
-            <button class="date-shortcut-btn" data-period="last7days">7 dias</button>
-            <button class="date-shortcut-btn" data-period="last30days">30 dias</button>
-            <button class="date-shortcut-btn" data-period="thisMonth">Este mês</button>
-          </div>
+            <!-- Dropdown Content -->
+            <div id="dateFilterDropdown" class="date-filter-dropdown">
+              <!-- Opções de período em badges -->
+              <div class="date-dropdown-section">
+                <div class="date-badges">
+                  <button class="date-badge" data-period="today">Hoje</button>
+                  <button class="date-badge" data-period="yesterday">Ontem</button>
+                  <button class="date-badge" data-period="last7days">7 dias</button>
+                  <button class="date-badge" data-period="last30days">30 dias</button>
+                  <button class="date-badge" data-period="thisMonth">Mês</button>
+                </div>
+              </div>
 
-          <!-- Período personalizado -->
-          <div class="date-custom">
-            <div class="date-input-group">
-              <label for="dateFrom">De:</label>
-              <input type="date" id="dateFrom" class="date-input">
-            </div>
-            <div class="date-input-group">
-              <label for="dateTo">Até:</label>
-              <input type="date" id="dateTo" class="date-input">
-            </div>
-          </div>
+              <!-- Período personalizado + Critério em linha -->
+              <div class="date-dropdown-section date-compact-row">
+                <div class="date-custom-inline">
+                  <input type="date" id="dateFrom" class="date-input-mini" title="Data inicial">
+                  <span class="date-separator">a</span>
+                  <input type="date" id="dateTo" class="date-input-mini" title="Data final">
+                </div>
+                <select id="dateCriteriaSelect" class="date-criteria-mini" title="Critério de filtro">
+                  <option value="last" selected>Última msg</option>
+                  <option value="first">Primeira msg</option>
+                  <option value="any">Qualquer msg</option>
+                </select>
+              </div>
 
-          <!-- Indicador de filtro ativo -->
-          <div id="dateFilterActive" class="date-filter-active" style="display: none;">
-            <span class="filter-active-icon">📅</span>
-            <span id="dateFilterActiveText">Filtro ativo</span>
+              <!-- Botão Limpar compacto -->
+              <button id="dateFilterClear" class="date-clear-inline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Limpar
+              </button>
+            </div>
           </div>
         </div>
 

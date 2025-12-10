@@ -94,14 +94,15 @@ function init() {
   elements.exportCurrentWrapper = document.getElementById('exportCurrentWrapper');
   elements.exportCurrentBtn = document.getElementById('exportCurrentBtn');
   elements.exportCurrentDropdown = document.getElementById('exportCurrentDropdown');
-  // Elementos do filtro de data
+  // Elementos do filtro de data (dropdown compacto)
+  elements.dateFilterToggle = document.getElementById('dateFilterToggle');
+  elements.dateFilterLabel = document.getElementById('dateFilterLabel');
+  elements.dateFilterDropdown = document.getElementById('dateFilterDropdown');
   elements.dateFilterClear = document.getElementById('dateFilterClear');
-  elements.dateCriteriaInputs = document.querySelectorAll('input[name="dateCriteria"]');
-  elements.dateShortcutBtns = document.querySelectorAll('.date-shortcut-btn');
+  elements.dateCriteriaSelect = document.getElementById('dateCriteriaSelect');
+  elements.dateOptionBtns = document.querySelectorAll('.date-badge');
   elements.dateFrom = document.getElementById('dateFrom');
   elements.dateTo = document.getElementById('dateTo');
-  elements.dateFilterActive = document.getElementById('dateFilterActive');
-  elements.dateFilterActiveText = document.getElementById('dateFilterActiveText');
   
   // Carrega e processa os dados
   loadData();
@@ -837,29 +838,39 @@ function applyFilters() {
 }
 
 // ========================================
-// FILTRO DE DATA
+// FILTRO DE DATA - DROPDOWN COMPACTO
 // ========================================
 
 /**
  * Configura listeners para o filtro de data
  */
 function setupDateFilterListeners() {
+  // Toggle do dropdown
+  if (elements.dateFilterToggle) {
+    elements.dateFilterToggle.addEventListener('click', toggleDateFilterDropdown);
+  }
+  
+  // Fechar dropdown ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.date-filter-dropdown-wrapper')) {
+      closeDateFilterDropdown();
+    }
+  });
+  
   // Botão limpar filtro de data
   if (elements.dateFilterClear) {
     elements.dateFilterClear.addEventListener('click', clearDateFilter);
   }
   
-  // Critério de data (radio buttons)
-  if (elements.dateCriteriaInputs) {
-    elements.dateCriteriaInputs.forEach(input => {
-      input.addEventListener('change', handleDateCriteriaChange);
-    });
+  // Critério de data (select)
+  if (elements.dateCriteriaSelect) {
+    elements.dateCriteriaSelect.addEventListener('change', handleDateCriteriaChange);
   }
   
-  // Atalhos de período
-  if (elements.dateShortcutBtns) {
-    elements.dateShortcutBtns.forEach(btn => {
-      btn.addEventListener('click', handleDateShortcutClick);
+  // Opções de período
+  if (elements.dateOptionBtns) {
+    elements.dateOptionBtns.forEach(btn => {
+      btn.addEventListener('click', handleDateOptionClick);
     });
   }
   
@@ -869,6 +880,41 @@ function setupDateFilterListeners() {
   }
   if (elements.dateTo) {
     elements.dateTo.addEventListener('change', handleCustomDateChange);
+  }
+}
+
+/**
+ * Abre/fecha o dropdown do filtro de data
+ */
+function toggleDateFilterDropdown(e) {
+  e.stopPropagation();
+  
+  const isOpen = elements.dateFilterDropdown.classList.contains('show');
+  
+  if (isOpen) {
+    closeDateFilterDropdown();
+  } else {
+    openDateFilterDropdown();
+  }
+}
+
+/**
+ * Abre o dropdown do filtro de data
+ */
+function openDateFilterDropdown() {
+  elements.dateFilterDropdown.classList.add('show');
+  elements.dateFilterToggle.classList.add('active');
+}
+
+/**
+ * Fecha o dropdown do filtro de data
+ */
+function closeDateFilterDropdown() {
+  if (elements.dateFilterDropdown) {
+    elements.dateFilterDropdown.classList.remove('show');
+  }
+  if (elements.dateFilterToggle) {
+    elements.dateFilterToggle.classList.remove('active');
   }
 }
 
@@ -885,16 +931,17 @@ function handleDateCriteriaChange(e) {
 }
 
 /**
- * Handler para clique nos atalhos de período
+ * Handler para clique nas opções de período
  */
-function handleDateShortcutClick(e) {
-  const period = e.target.dataset.period;
+function handleDateOptionClick(e) {
+  const btn = e.currentTarget;
+  const period = btn.dataset.period;
   
   // Remove classe active de todos os botões
-  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  elements.dateOptionBtns.forEach(b => b.classList.remove('active'));
   
   // Adiciona classe active ao botão clicado
-  e.target.classList.add('active');
+  btn.classList.add('active');
   
   // Obtém o período
   const dateRange = getDatePeriod(period);
@@ -909,11 +956,14 @@ function handleDateShortcutClick(e) {
     // Atualiza campos de data personalizada para refletir o período
     updateCustomDateInputs(dateRange.startDate, dateRange.endDate);
     
-    // Mostra indicador de filtro ativo
-    showDateFilterActive(period);
+    // Atualiza label do toggle
+    updateDateFilterLabel(period);
     
     // Aplica filtros
     applyFilters();
+    
+    // Fecha dropdown após selecionar
+    closeDateFilterDropdown();
   }
 }
 
@@ -924,8 +974,8 @@ function handleCustomDateChange() {
   const fromValue = elements.dateFrom.value;
   const toValue = elements.dateTo.value;
   
-  // Remove classe active dos atalhos
-  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  // Remove classe active das opções de período
+  elements.dateOptionBtns.forEach(btn => btn.classList.remove('active'));
   
   // Se ambas as datas estiverem preenchidas
   if (fromValue && toValue) {
@@ -949,23 +999,18 @@ function handleCustomDateChange() {
     state.dateFilter.active = true;
     state.dateFilter.period = 'custom';
     
-    // Mostra indicador de filtro ativo
-    showDateFilterActive('custom', state.dateFilter.startDate, state.dateFilter.endDate);
+    // Atualiza label do toggle
+    updateDateFilterLabel('custom', state.dateFilter.startDate, state.dateFilter.endDate);
     
     // Aplica filtros
     applyFilters();
-  } else if (fromValue || toValue) {
-    // Se apenas uma data estiver preenchida, aguarda a outra
-    // Mas ainda marca como filtro ativo parcial
-    state.dateFilter.active = false;
-    hideDateFilterActive();
-  } else {
+  } else if (!fromValue && !toValue) {
     // Se ambas estiverem vazias, desativa o filtro
     state.dateFilter.active = false;
     state.dateFilter.startDate = null;
     state.dateFilter.endDate = null;
     state.dateFilter.period = null;
-    hideDateFilterActive();
+    updateDateFilterLabel(null);
     applyFilters();
   }
 }
@@ -997,39 +1042,28 @@ function formatDateForInput(date) {
 }
 
 /**
- * Mostra o indicador de filtro de data ativo
- * @param {string} period - Período selecionado
+ * Atualiza o label do botão toggle do filtro
+ * @param {string|null} period - Período selecionado
  * @param {Date} [startDate] - Data de início (para período custom)
  * @param {Date} [endDate] - Data de fim (para período custom)
  */
-function showDateFilterActive(period, startDate, endDate) {
-  if (elements.dateFilterActive && elements.dateFilterActiveText) {
-    let text = getPeriodLabel(period);
-    
-    if (period === 'custom' && startDate && endDate) {
-      text = `${formatDateShort(startDate)} a ${formatDateShort(endDate)}`;
-    }
-    
-    elements.dateFilterActiveText.textContent = text;
-    elements.dateFilterActive.style.display = 'flex';
+function updateDateFilterLabel(period, startDate, endDate) {
+  if (!elements.dateFilterLabel || !elements.dateFilterToggle) return;
+  
+  if (!period) {
+    elements.dateFilterLabel.textContent = 'Selecione o período...';
+    elements.dateFilterToggle.classList.remove('has-filter');
+    return;
   }
   
-  // Mostra botão limpar
-  if (elements.dateFilterClear) {
-    elements.dateFilterClear.style.display = 'flex';
+  let text = getPeriodLabel(period);
+  
+  if (period === 'custom' && startDate && endDate) {
+    text = `${formatDateShort(startDate)} a ${formatDateShort(endDate)}`;
   }
-}
-
-/**
- * Esconde o indicador de filtro de data ativo
- */
-function hideDateFilterActive() {
-  if (elements.dateFilterActive) {
-    elements.dateFilterActive.style.display = 'none';
-  }
-  if (elements.dateFilterClear) {
-    elements.dateFilterClear.style.display = 'none';
-  }
+  
+  elements.dateFilterLabel.textContent = text;
+  elements.dateFilterToggle.classList.add('has-filter');
 }
 
 /**
@@ -1042,15 +1076,24 @@ function clearDateFilter() {
   state.dateFilter.endDate = null;
   state.dateFilter.period = null;
   
-  // Remove classe active dos atalhos
-  elements.dateShortcutBtns.forEach(btn => btn.classList.remove('active'));
+  // Remove classe active das opções
+  elements.dateOptionBtns.forEach(btn => btn.classList.remove('active'));
   
   // Limpa campos de data
   if (elements.dateFrom) elements.dateFrom.value = '';
   if (elements.dateTo) elements.dateTo.value = '';
   
-  // Esconde indicador
-  hideDateFilterActive();
+  // Reseta critério para padrão
+  if (elements.dateCriteriaSelect) {
+    elements.dateCriteriaSelect.value = 'last';
+    state.dateFilter.criteria = 'last';
+  }
+  
+  // Atualiza label
+  updateDateFilterLabel(null);
+  
+  // Fecha dropdown
+  closeDateFilterDropdown();
   
   // Reaplica filtros
   applyFilters();
