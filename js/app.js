@@ -223,7 +223,10 @@ async function loadData() {
     loadAllFeedbacks().then(() => {
       updateConversationListFeedbackIndicators();
     });
-    
+
+    // Verifica se há conversa na URL para abrir automaticamente
+    openConversationFromUrl();
+
     hideLoading();
     
   } catch (error) {
@@ -272,7 +275,10 @@ function useMockupData() {
   loadAllFeedbacks().then(() => {
     updateConversationListFeedbackIndicators();
   });
-  
+
+  // Verifica se há conversa na URL para abrir automaticamente
+  openConversationFromUrl();
+
   hideError();
 }
 
@@ -348,10 +354,13 @@ function setupEventListeners() {
   
   // Detectar mudança de tamanho da tela
   window.addEventListener('resize', debounce(handleResize, 150));
-  
+
+  // Navegação do histórico (botão voltar/avançar do navegador)
+  window.addEventListener('popstate', handlePopState);
+
   // Configura exportação
   setupExportListeners();
-  
+
   // Configura filtro de data
   setupDateFilterListeners();
 }
@@ -577,21 +586,98 @@ function renderMessages(sessionId) {
 /**
  * Seleciona uma conversa
  * @param {string} sessionId - ID da sessão
+ * @param {boolean} [updateUrl=true] - Se deve atualizar a URL
  */
-function selectConversation(sessionId) {
+function selectConversation(sessionId, updateUrl = true) {
   state.selectedSession = sessionId;
-  
+
   // Atualiza visual da lista
   document.querySelectorAll('.conversation-item').forEach(item => {
     item.classList.toggle('active', item.dataset.sessionId === sessionId);
   });
-  
+
   // Renderiza mensagens
   renderMessages(sessionId);
-  
+
+  // Atualiza a URL com o parâmetro da conversa
+  if (updateUrl) {
+    updateUrlWithConversation(sessionId);
+  }
+
   // Fecha sidebar em mobile após selecionar conversa
   if (isMobileView()) {
     closeSidebar();
+  }
+}
+
+/**
+ * Atualiza a URL com o ID da conversa selecionada
+ * @param {string} sessionId - ID da sessão
+ */
+function updateUrlWithConversation(sessionId) {
+  const url = new URL(window.location);
+  url.searchParams.set('conversation', sessionId);
+  window.history.pushState({ sessionId }, '', url);
+}
+
+/**
+ * Remove o parâmetro de conversa da URL
+ */
+function clearUrlConversation() {
+  const url = new URL(window.location);
+  url.searchParams.delete('conversation');
+  window.history.pushState({}, '', url);
+}
+
+/**
+ * Obtém o ID da conversa da URL
+ * @returns {string|null} - ID da conversa ou null
+ */
+function getConversationFromUrl() {
+  const url = new URL(window.location);
+  return url.searchParams.get('conversation');
+}
+
+/**
+ * Abre a conversa especificada na URL (se existir)
+ */
+function openConversationFromUrl() {
+  const conversationId = getConversationFromUrl();
+
+  if (conversationId && state.conversations[conversationId]) {
+    // Usa updateUrl=false para não duplicar o histórico
+    selectConversation(conversationId, false);
+  }
+}
+
+/**
+ * Handler para navegação do histórico (botão voltar/avançar)
+ * @param {PopStateEvent} event - Evento popstate
+ */
+function handlePopState(event) {
+  const conversationId = getConversationFromUrl();
+
+  if (conversationId && state.filteredConversations[conversationId]) {
+    // Seleciona a conversa sem atualizar a URL novamente
+    selectConversation(conversationId, false);
+  } else {
+    // Se não há conversa na URL, limpa a seleção
+    state.selectedSession = null;
+    document.querySelectorAll('.conversation-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    elements.chatMessages.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📱</div>
+        <p>Selecione uma conversa na lista ao lado para visualizar as mensagens</p>
+      </div>
+    `;
+    elements.chatTitle.textContent = 'Selecione uma conversa';
+    elements.messageCount.textContent = '';
+    toggleExportCurrentButton(false);
+    if (elements.feedbackBtn) {
+      elements.feedbackBtn.style.display = 'none';
+    }
   }
 }
 
