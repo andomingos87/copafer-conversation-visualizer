@@ -394,6 +394,24 @@ function renderMessages(sessionId) {
       content = highlightText(content, state.searchTerm);
     }
     
+    // Obtém o horário da mensagem
+    let messageTime = '';
+    if (msg.created_at) {
+      messageTime = formatTime(msg.created_at);
+    } else {
+      // Se não houver created_at, gera um horário baseado no índice (para dados mockup)
+      // Simula horários incrementais para visualização
+      const baseDate = new Date();
+      baseDate.setHours(9, 0, 0); // Começa às 09:00:00
+      baseDate.setSeconds(baseDate.getSeconds() + (index * 30)); // Incrementa 30 segundos por mensagem
+      messageTime = formatTime(baseDate.toISOString());
+    }
+    
+    // Se ainda não tiver horário, usa horário atual
+    if (!messageTime) {
+      messageTime = formatTime(new Date().toISOString());
+    }
+    
     const messageEl = document.createElement('div');
     messageEl.className = `message ${type}`;
     messageEl.style.animationDelay = `${index * 0.05}s`;
@@ -401,7 +419,10 @@ function renderMessages(sessionId) {
     const senderLabel = type === 'human' ? '👤 Cliente' : '🤖 Copafer IA';
     
     messageEl.innerHTML = `
-      <div class="message-sender">${senderLabel}</div>
+      <div class="message-header">
+        <div class="message-sender">${senderLabel}</div>
+        <div class="message-time">${messageTime}</div>
+      </div>
       <div class="message-bubble">
         <div class="message-content">${content}</div>
       </div>
