@@ -354,11 +354,48 @@ function populateClientFilter() {
 }
 
 /**
+ * Obtém a data da última mensagem de uma conversa para ordenação
+ * @param {Array} messages - Array de mensagens da conversa
+ * @returns {Date|null} - Data da última mensagem ou null
+ */
+function getLastMessageDate(messages) {
+  if (!messages || messages.length === 0) return null;
+  
+  const lastMessage = messages[messages.length - 1];
+  if (lastMessage && lastMessage.created_at) {
+    return new Date(lastMessage.created_at);
+  }
+  
+  return null;
+}
+
+/**
  * Renderiza a lista de conversas na sidebar
  */
 function renderConversationList() {
   const conversations = state.filteredConversations;
-  const sessions = Object.keys(conversations);
+  let sessions = Object.keys(conversations);
+  
+  // Ordena conversas pela data da última mensagem (mais recente primeiro)
+  sessions.sort((sessionIdA, sessionIdB) => {
+    const messagesA = conversations[sessionIdA];
+    const messagesB = conversations[sessionIdB];
+    
+    const dateA = getLastMessageDate(messagesA);
+    const dateB = getLastMessageDate(messagesB);
+    
+    // Se ambas têm data, ordena por data (mais recente primeiro)
+    if (dateA && dateB) {
+      return dateB - dateA; // Ordem decrescente (mais recente primeiro)
+    }
+    
+    // Se apenas uma tem data, ela vem primeiro
+    if (dateA && !dateB) return -1;
+    if (!dateA && dateB) return 1;
+    
+    // Se nenhuma tem data, mantém ordem original
+    return 0;
+  });
   
   // Atualiza contador
   elements.conversationCount.textContent = sessions.length;
