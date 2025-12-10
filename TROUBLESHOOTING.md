@@ -145,9 +145,7 @@ Para atualizar o mesmo registro após o INSERT, você pode atualizar os campos e
 
 ```sql
 -- Atualizar rating e comment em um único UPDATE
-UPDATE conversation_feedback
-SET rating = 4, comment = 'Feedback atualizado'
-WHERE session_id = '5511960620053';
+
 ```
 
 **Nota:** O campo `updated_at` será atualizado automaticamente pelo trigger `update_conversation_feedback_updated_at`, então você não precisa incluí-lo no SET.
