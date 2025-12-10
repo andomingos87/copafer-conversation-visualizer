@@ -136,29 +136,74 @@ async function saveFeedback(sessionId, rating, comment) {
     if (!response.ok) {
       let errorMessage = `Erro HTTP ${response.status}`;
       
+      // Lê o body como texto primeiro (só pode ser lido uma vez)
       try {
-        const errorData = await response.json();
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData.error) {
-          errorMessage = errorData.error;
+        const errorText = await response.text();
+        if (errorText) {
+          try {
+            // Tenta fazer parse do JSON
+            const errorData = JSON.parse(errorText);
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            } else {
+              errorMessage = errorText.substring(0, 200);
+            }
+          } catch (e) {
+            // Se não for JSON, usa o texto diretamente
+            errorMessage = errorText.substring(0, 200);
+          }
         }
       } catch (e) {
-        // Se não conseguir ler JSON, tenta texto
-        try {
-          const errorText = await response.text();
-          if (errorText) {
-            errorMessage = errorText;
-          }
-        } catch (e2) {
-          // Ignora
-        }
+        // Se não conseguir ler, usa a mensagem padrão
+        console.error('Erro ao ler resposta de erro:', e);
       }
       
       throw new Error(errorMessage);
     }
     
-    const data = await response.json();
+    // Log informações da resposta para debug
+    console.log('Status da resposta:', response.status, response.statusText);
+    console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+    
+    // Lê o body como texto primeiro (só pode ser lido uma vez)
+    const text = await response.text();
+    
+    // Verifica se a resposta está vazia
+    if (!text || text.trim() === '') {
+      console.warn('Servidor retornou resposta vazia. Status:', response.status);
+      
+      // Se o status for 200/201 mas a resposta estiver vazia, tenta buscar o feedback
+      if (response.status === 200 || response.status === 201) {
+        console.warn('Status OK mas resposta vazia. Tentando buscar feedback...');
+        try {
+          const fetchedFeedback = await getFeedback(sessionId);
+          if (fetchedFeedback && fetchedFeedback.session_id) {
+            console.log('Feedback encontrado após buscar:', fetchedFeedback);
+            return fetchedFeedback;
+          }
+        } catch (e) {
+          console.error('Erro ao buscar feedback após salvar:', e);
+        }
+      }
+      
+      throw new Error('O servidor retornou uma resposta vazia. Verifique a configuração do endpoint no n8n para retornar os dados do feedback após salvar.');
+    }
+    
+    let data;
+    try {
+      // Tenta fazer parse do JSON
+      data = JSON.parse(text);
+    } catch (e) {
+      // Se não conseguir parsear JSON, mostra o texto recebido
+      console.error('Resposta do servidor não é JSON válido. Texto recebido:', text);
+      console.error('Erro de parse:', e);
+      throw new Error(`Resposta inválida do servidor (não é JSON válido): ${text.substring(0, 200)}`);
+    }
+    
+    // Log para debug
+    console.log('Resposta do servidor (saveFeedback):', data);
     
     // Se retornar array, pega o primeiro elemento
     // Se retornar objeto, usa diretamente
@@ -166,7 +211,33 @@ async function saveFeedback(sessionId, rating, comment) {
     
     // Valida se o feedback foi salvo corretamente
     if (!feedback || !feedback.session_id) {
-      throw new Error('Resposta inválida do servidor');
+      console.error('Resposta inválida - dados recebidos:', feedback);
+      console.error('Tipo de dados:', typeof feedback);
+      console.error('É array?', Array.isArray(data));
+      
+      // Verifica se retornou apenas {"success":true} ou similar
+      if (feedback && feedback.success && !feedback.session_id) {
+        // Se retornou apenas success, tenta buscar o feedback novamente
+        console.warn('Servidor retornou apenas success. Tentando buscar feedback...');
+        try {
+          const fetchedFeedback = await getFeedback(sessionId);
+          if (fetchedFeedback && fetchedFeedback.session_id) {
+            console.log('Feedback encontrado após buscar:', fetchedFeedback);
+            return fetchedFeedback;
+          }
+        } catch (e) {
+          console.error('Erro ao buscar feedback após salvar:', e);
+        }
+        
+        throw new Error('O servidor retornou apenas {"success":true}, mas não retornou os dados do feedback. Verifique a configuração do endpoint no n8n para retornar o objeto completo do feedback após salvar.');
+      }
+      
+      // Mensagem de erro mais descritiva
+      const errorMsg = feedback 
+        ? `Resposta inválida do servidor: falta campo 'session_id'. Dados recebidos: ${JSON.stringify(feedback)}`
+        : `Resposta inválida do servidor: resposta vazia ou null`;
+      
+      throw new Error(errorMsg);
     }
     
     return feedback;

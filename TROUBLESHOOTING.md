@@ -40,7 +40,119 @@
    - Access-Control-Allow-Headers: Content-Type, Accept
    ```
 
-### 4. Erro ao salvar feedback - "É necessário preencher pelo menos..."
+### 4. Erro "Resposta inválida do servidor" ao salvar feedback
+
+**Problema:** O endpoint POST `/savefeedback` retorna uma resposta que não contém o campo `session_id` ou retorna formato inesperado.
+
+**Sintomas:**
+- Erro no console: `Erro ao salvar feedback: Error: Resposta inválida do servidor`
+- Erro: `O servidor retornou uma resposta vazia`
+- Erro: `Resposta inválida do servidor (não é JSON válido)`
+- O feedback não é salvo
+
+**Possíveis causas e soluções:**
+
+1. **❌ ERRO COMUM: Servidor retorna resposta vazia ou apenas `{"success":true}`**
+
+   **Problema:** O endpoint está retornando resposta vazia ou apenas um objeto de sucesso, mas não os dados do feedback.
+   
+   **Sintomas:**
+   - Console mostra: `Resposta do servidor não é JSON válido: ` (vazio)
+   - Erro: `O servidor retornou uma resposta vazia`
+   - Ou retorna: `[{"success":true}]` sem os dados do feedback
+   
+   **Causas possíveis:**
+   - O node **Respond to Webhook** não está configurado para retornar dados
+   - O node **Respond to Webhook** está retornando apenas o resultado do INSERT/UPDATE (que pode ser vazio)
+   - Falta um node SELECT após o INSERT/UPDATE
+   
+   **Solução no n8n:**
+   - Após fazer INSERT ou UPDATE no PostgreSQL, você **DEVE** fazer um SELECT para buscar o registro salvo
+   - O workflow deve ter esta sequência:
+     1. Node **PostgreSQL** → INSERT ou UPDATE
+     2. Node **PostgreSQL** → SELECT para buscar o registro salvo:
+        ```sql
+        SELECT * FROM conversation_feedback 
+        WHERE session_id = '{{ $json.body.session_id }}'
+        ```
+     3. Node **Respond to Webhook** → Retorna o resultado do SELECT (não o resultado do INSERT/UPDATE)
+   
+   **⚠️ IMPORTANTE:** 
+   - Não retorne apenas `{"success":true}` ou resposta vazia
+   - O frontend precisa dos dados completos do feedback
+   - O node **Respond to Webhook** deve retornar o resultado do SELECT, não o resultado do INSERT/UPDATE
+
+2. **O endpoint não está retornando o formato esperado:**
+   - Verifique no n8n se o node **Respond to Webhook** está retornando o objeto completo
+   - O formato esperado é:
+     ```json
+     {
+       "session_id": "5511960620053",
+       "rating": 5,
+       "comment": "teste",
+       "created_at": "2025-12-10T12:03:03Z",
+       "updated_at": "2025-12-10T12:03:05Z"
+     }
+     ```
+   - **NÃO** retorne: `{"success":true}` ou `[{"success":true}]`
+
+3. **O endpoint está retornando array vazio ou formato incorreto:**
+   - Verifique os logs do n8n (Executions) para ver o que está sendo retornado
+   - Certifique-se de que após o INSERT/UPDATE, você está fazendo um SELECT para retornar os dados salvos
+
+4. **Verificar no console do navegador:**
+   - Abra o DevTools (F12) → Console
+   - Procure por: `Resposta do servidor (saveFeedback):`
+   - Isso mostrará exatamente o que o servidor está retornando
+   - Se aparecer `[{"success":true}]`, o problema é que o servidor não está retornando os dados do feedback
+
+**Checklist no n8n para o endpoint POST `/savefeedback`:**
+
+1. **Webhook recebe os dados:**
+   - [ ] Extrai `session_id`, `rating`, `comment` do body da requisição
+
+2. **Validação (opcional, mas recomendado):**
+   - [ ] Valida que `session_id` não está vazio
+   - [ ] Valida que pelo menos `rating` OU `comment` está preenchido
+   - [ ] Valida que `rating` está entre 1 e 5 (se fornecido)
+
+3. **Verifica se feedback existe:**
+   - [ ] Executa SELECT para verificar se já existe:
+     ```sql
+     SELECT id FROM conversation_feedback 
+     WHERE session_id = '{{ $json.body.session_id }}'
+     ```
+
+4. **Salva ou atualiza:**
+   - [ ] Se existe: Executa UPDATE
+   - [ ] Se não existe: Executa INSERT
+
+5. **⚠️ CRÍTICO - Busca o registro salvo:**
+   - [ ] Após INSERT/UPDATE, executa SELECT para buscar o registro completo:
+     ```sql
+     SELECT * FROM conversation_feedback 
+     WHERE session_id = '{{ $json.body.session_id }}'
+     ```
+
+6. **Retorna os dados:**
+   - [ ] O node **Respond to Webhook** retorna o resultado do SELECT (não `{"success":true}`)
+   - [ ] O SELECT retorna todos os campos: `session_id`, `rating`, `comment`, `created_at`, `updated_at`
+   - [ ] O formato de resposta é um objeto JSON ou array com um objeto
+
+**Exemplo de workflow correto no n8n:**
+```
+Webhook (POST) 
+  → Validação (opcional)
+  → PostgreSQL (SELECT para verificar se existe)
+  → IF (existe)
+     → PostgreSQL (UPDATE)
+  → ELSE
+     → PostgreSQL (INSERT)
+  → PostgreSQL (SELECT para buscar registro salvo) ← IMPORTANTE!
+  → Respond to Webhook (retorna resultado do SELECT)
+```
+
+### 5. Erro ao salvar feedback - "É necessário preencher pelo menos..."
 
 **Problema:** Validação no frontend está funcionando, mas o backend também precisa validar.
 
@@ -49,7 +161,7 @@
 - Pelo menos `rating` OU `comment` deve estar preenchido
 - Se `rating` for fornecido, deve estar entre 1 e 5
 
-### 5. Feedback não aparece após salvar
+### 6. Feedback não aparece após salvar
 
 **Problema:** Feedback foi salvo mas não aparece na interface.
 
@@ -58,7 +170,7 @@
 2. Verifique se o endpoint GET está retornando os dados corretamente
 3. Recarregue a página para forçar atualização
 
-### 6. Estrutura de resposta diferente do esperado
+### 7. Estrutura de resposta diferente do esperado
 
 **Problema:** O backend retorna dados em formato diferente.
 
@@ -88,7 +200,7 @@
 
 **Nota:** Se o backend retornar arrays, o frontend já trata isso automaticamente.
 
-### 7. Erro ao fazer INSERT teste no n8n - "Insert rows in a table"
+### 8. Erro ao fazer INSERT teste no n8n - "Insert rows in a table"
 
 **Problema:** Ao tentar inserir dados diretamente no n8n usando o node "Insert rows in a table", o insert não funciona.
 
