@@ -638,14 +638,169 @@ function getConversationFromUrl() {
   return url.searchParams.get('conversation');
 }
 
+// ========================================
+// URL PARAMETERS - FILTROS
+// ========================================
+
+/**
+ * Atualiza a URL com todos os filtros ativos
+ * Não adiciona ao histórico (usa replaceState)
+ */
+function updateUrlWithFilters() {
+  const url = new URL(window.location);
+
+  // Filtro de cliente
+  if (state.clientFilter) {
+    url.searchParams.set('client', state.clientFilter);
+  } else {
+    url.searchParams.delete('client');
+  }
+
+  // Filtro de busca
+  if (state.searchTerm) {
+    url.searchParams.set('search', state.searchTerm);
+  } else {
+    url.searchParams.delete('search');
+  }
+
+  // Filtro de data
+  if (state.dateFilter.active && state.dateFilter.startDate && state.dateFilter.endDate) {
+    url.searchParams.set('dateFrom', formatDateForInput(state.dateFilter.startDate));
+    url.searchParams.set('dateTo', formatDateForInput(state.dateFilter.endDate));
+    url.searchParams.set('dateCriteria', state.dateFilter.criteria);
+    if (state.dateFilter.period) {
+      url.searchParams.set('datePeriod', state.dateFilter.period);
+    }
+  } else {
+    url.searchParams.delete('dateFrom');
+    url.searchParams.delete('dateTo');
+    url.searchParams.delete('dateCriteria');
+    url.searchParams.delete('datePeriod');
+  }
+
+  // Usa replaceState para não poluir o histórico
+  window.history.replaceState(window.history.state, '', url);
+}
+
+/**
+ * Obtém os filtros da URL
+ * @returns {Object} - Objeto com os filtros da URL
+ */
+function getFiltersFromUrl() {
+  const url = new URL(window.location);
+
+  return {
+    client: url.searchParams.get('client'),
+    search: url.searchParams.get('search'),
+    dateFrom: url.searchParams.get('dateFrom'),
+    dateTo: url.searchParams.get('dateTo'),
+    dateCriteria: url.searchParams.get('dateCriteria') || 'last',
+    datePeriod: url.searchParams.get('datePeriod')
+  };
+}
+
+/**
+ * Restaura os filtros a partir dos parâmetros da URL
+ */
+function restoreFiltersFromUrl() {
+  const filters = getFiltersFromUrl();
+  let hasFilters = false;
+
+  // Restaura filtro de cliente
+  if (filters.client && state.conversations[filters.client]) {
+    state.clientFilter = filters.client;
+    const client = state.availableClients.find(c => c.sessionId === filters.client);
+    if (client && elements.clientFilter) {
+      elements.clientFilter.value = client.displayText;
+      elements.clientFilterClear.style.display = 'flex';
+    }
+    hasFilters = true;
+  }
+
+  // Restaura filtro de busca
+  if (filters.search) {
+    state.searchTerm = filters.search;
+    if (elements.searchInput) {
+      elements.searchInput.value = filters.search;
+      elements.clearSearch.classList.add('visible');
+    }
+    hasFilters = true;
+  }
+
+  // Restaura filtro de data
+  if (filters.dateFrom && filters.dateTo) {
+    const startDate = startOfDay(new Date(filters.dateFrom + 'T00:00:00'));
+    const endDate = endOfDay(new Date(filters.dateTo + 'T00:00:00'));
+
+    // Valida se as datas são válidas
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+      state.dateFilter.active = true;
+      state.dateFilter.startDate = startDate;
+      state.dateFilter.endDate = endDate;
+      state.dateFilter.criteria = filters.dateCriteria;
+      state.dateFilter.period = filters.datePeriod || 'custom';
+
+      // Atualiza UI dos filtros de data
+      if (elements.dateFrom) {
+        elements.dateFrom.value = filters.dateFrom;
+      }
+      if (elements.dateTo) {
+        elements.dateTo.value = filters.dateTo;
+      }
+      if (elements.dateCriteriaSelect) {
+        elements.dateCriteriaSelect.value = filters.dateCriteria;
+      }
+
+      // Marca o botão de período se aplicável
+      if (filters.datePeriod && filters.datePeriod !== 'custom') {
+        elements.dateOptionBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.period === filters.datePeriod);
+        });
+      }
+
+      // Atualiza label do toggle
+      updateDateFilterLabel(state.dateFilter.period, startDate, endDate);
+
+      hasFilters = true;
+    }
+  }
+
+  // Se houver filtros, aplica-os (sem atualizar URL novamente)
+  if (hasFilters) {
+    applyFilters(false);
+  }
+}
+
+/**
+ * Limpa todos os parâmetros de filtro da URL (exceto conversation)
+ */
+function clearUrlFilters() {
+  const url = new URL(window.location);
+  url.searchParams.delete('client');
+  url.searchParams.delete('search');
+  url.searchParams.delete('dateFrom');
+  url.searchParams.delete('dateTo');
+  url.searchParams.delete('dateCriteria');
+  url.searchParams.delete('datePeriod');
+  window.history.replaceState(window.history.state, '', url);
+}
+
 /**
  * Abre a conversa especificada na URL (se existir)
+ * E restaura os filtros da URL
  */
 function openConversationFromUrl() {
+  // Primeiro restaura os filtros (sem atualizar URL novamente)
+  restoreFiltersFromUrl();
+
+  // Depois abre a conversa se especificada
   const conversationId = getConversationFromUrl();
 
-  if (conversationId && state.conversations[conversationId]) {
+  if (conversationId && state.filteredConversations[conversationId]) {
     // Usa updateUrl=false para não duplicar o histórico
+    selectConversation(conversationId, false);
+  } else if (conversationId && state.conversations[conversationId]) {
+    // Se a conversa existe mas não está nos filtros, limpa os filtros e abre
     selectConversation(conversationId, false);
   }
 }
@@ -1069,17 +1224,18 @@ function handleClientFilter() {
 
 /**
  * Aplica todos os filtros ativos
+ * @param {boolean} [updateUrl=true] - Se deve atualizar a URL com os filtros
  */
-function applyFilters() {
+function applyFilters(updateUrl = true) {
   let filtered = { ...state.conversations };
-  
+
   // Aplica filtro de cliente
   if (state.clientFilter) {
     filtered = {
       [state.clientFilter]: filtered[state.clientFilter]
     };
   }
-  
+
   // Aplica filtro de data
   if (state.dateFilter.active && state.dateFilter.startDate && state.dateFilter.endDate) {
     filtered = filterConversationsByDate(
@@ -1089,14 +1245,19 @@ function applyFilters() {
       state.dateFilter.criteria
     );
   }
-  
+
   // Aplica filtro de busca
   if (state.searchTerm) {
     filtered = filterConversationsBySearch(filtered, state.searchTerm);
   }
-  
+
   state.filteredConversations = filtered;
-  
+
+  // Atualiza a URL com os filtros
+  if (updateUrl) {
+    updateUrlWithFilters();
+  }
+
   // Re-renderiza lista
   renderConversationList();
   
