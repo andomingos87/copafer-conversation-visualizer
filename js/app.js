@@ -56,6 +56,8 @@ const elements = {
   dateShortcutBtns: null,
   dateFrom: null,
   dateTo: null,
+  dateFromFlatpickr: null, // Instância do Flatpickr para dateFrom
+  dateToFlatpickr: null, // Instância do Flatpickr para dateTo
   dateFilterActive: null,
   dateFilterActiveText: null,
   // Elementos de feedback
@@ -106,6 +108,16 @@ function init() {
   elements.dateOptionBtns = document.querySelectorAll('.date-badge');
   elements.dateFrom = document.getElementById('dateFrom');
   elements.dateTo = document.getElementById('dateTo');
+  
+  // Configura locale brasileiro para os inputs de data (após um pequeno delay para garantir que Flatpickr está carregado)
+  // O setupBrazilianDateLocale tem retry interno, mas garantimos que seja chamado após DOM estar pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(setupBrazilianDateLocale, 50);
+    });
+  } else {
+    setTimeout(setupBrazilianDateLocale, 50);
+  }
   
   // Carrega e processa os dados
   loadData();
@@ -740,12 +752,29 @@ function restoreFiltersFromUrl() {
       state.dateFilter.criteria = filters.dateCriteria;
       state.dateFilter.period = filters.datePeriod || 'custom';
 
-      // Atualiza UI dos filtros de data
-      if (elements.dateFrom) {
-        elements.dateFrom.value = filters.dateFrom;
+      // Atualiza UI dos filtros de data (usando Flatpickr se disponível)
+      if (elements.dateFromFlatpickr) {
+        elements.dateFromFlatpickr.setDate(startDate, false);
+      } else if (elements.dateFrom) {
+        // Converte de YYYY-MM-DD para DD/MM/YYYY se necessário
+        const dateParts = filters.dateFrom.split('-');
+        if (dateParts.length === 3) {
+          elements.dateFrom.value = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        } else {
+          elements.dateFrom.value = filters.dateFrom;
+        }
       }
-      if (elements.dateTo) {
-        elements.dateTo.value = filters.dateTo;
+      
+      if (elements.dateToFlatpickr) {
+        elements.dateToFlatpickr.setDate(endDate, false);
+      } else if (elements.dateTo) {
+        // Converte de YYYY-MM-DD para DD/MM/YYYY se necessário
+        const dateParts = filters.dateTo.split('-');
+        if (dateParts.length === 3) {
+          elements.dateTo.value = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        } else {
+          elements.dateTo.value = filters.dateTo;
+        }
       }
       if (elements.dateCriteriaSelect) {
         elements.dateCriteriaSelect.value = filters.dateCriteria;
@@ -1414,19 +1443,53 @@ function handleDateOptionClick(e) {
 }
 
 /**
+ * Converte data do formato brasileiro (DD/MM/YYYY) para Date object
+ * @param {string} dateStr - Data no formato DD/MM/YYYY
+ * @returns {Date|null} - Objeto Date ou null se inválido
+ */
+function parseBrazilianDate(dateStr) {
+  if (!dateStr) return null;
+  
+  // Tenta parsear formato DD/MM/YYYY
+  const parts = dateStr.split('/');
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Mês é 0-indexed
+    const year = parseInt(parts[2], 10);
+    
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+      return new Date(year, month, day);
+    }
+  }
+  
+  // Fallback: tenta parsear como ISO ou formato padrão
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+/**
  * Handler para mudança nos campos de data personalizada
  */
 function handleCustomDateChange() {
-  const fromValue = elements.dateFrom.value;
-  const toValue = elements.dateTo.value;
+  const fromValue = elements.dateFrom ? elements.dateFrom.value : '';
+  const toValue = elements.dateTo ? elements.dateTo.value : '';
   
   // Remove classe active das opções de período
   elements.dateOptionBtns.forEach(btn => btn.classList.remove('active'));
   
   // Se ambas as datas estiverem preenchidas
   if (fromValue && toValue) {
-    const startDate = startOfDay(new Date(fromValue + 'T00:00:00'));
-    const endDate = endOfDay(new Date(toValue + 'T00:00:00'));
+    // Converte do formato brasileiro (DD/MM/YYYY) para Date
+    const startDateObj = parseBrazilianDate(fromValue);
+    const endDateObj = parseBrazilianDate(toValue);
+    
+    if (!startDateObj || !endDateObj) {
+      console.warn('Data inválida:', fromValue, toValue);
+      return;
+    }
+    
+    const startDate = startOfDay(startDateObj);
+    const endDate = endOfDay(endDateObj);
     
     // Valida se a data inicial é menor ou igual à final
     if (startDate > endDate) {
@@ -1434,9 +1497,13 @@ function handleCustomDateChange() {
       state.dateFilter.startDate = endDate;
       state.dateFilter.endDate = startDate;
       
-      // Atualiza os inputs
-      elements.dateFrom.value = formatDateForInput(endDate);
-      elements.dateTo.value = formatDateForInput(startDate);
+      // Atualiza os inputs do Flatpickr
+      if (elements.dateFromFlatpickr) {
+        elements.dateFromFlatpickr.setDate(endDate);
+      }
+      if (elements.dateToFlatpickr) {
+        elements.dateToFlatpickr.setDate(startDate);
+      }
     } else {
       state.dateFilter.startDate = startDate;
       state.dateFilter.endDate = endDate;
@@ -1467,11 +1534,81 @@ function handleCustomDateChange() {
  * @param {Date} endDate - Data de fim
  */
 function updateCustomDateInputs(startDate, endDate) {
-  if (elements.dateFrom && startDate) {
-    elements.dateFrom.value = formatDateForInput(startDate);
+  // Usa Flatpickr se disponível, caso contrário usa método padrão
+  if (elements.dateFromFlatpickr && startDate) {
+    elements.dateFromFlatpickr.setDate(startDate, false); // false = não dispara onChange
+  } else if (elements.dateFrom && startDate) {
+    // Fallback: formata manualmente no formato brasileiro
+    const day = String(startDate.getDate()).padStart(2, '0');
+    const month = String(startDate.getMonth() + 1).padStart(2, '0');
+    const year = startDate.getFullYear();
+    elements.dateFrom.value = `${day}/${month}/${year}`;
   }
-  if (elements.dateTo && endDate) {
-    elements.dateTo.value = formatDateForInput(endDate);
+  
+  if (elements.dateToFlatpickr && endDate) {
+    elements.dateToFlatpickr.setDate(endDate, false); // false = não dispara onChange
+  } else if (elements.dateTo && endDate) {
+    // Fallback: formata manualmente no formato brasileiro
+    const day = String(endDate.getDate()).padStart(2, '0');
+    const month = String(endDate.getMonth() + 1).padStart(2, '0');
+    const year = endDate.getFullYear();
+    elements.dateTo.value = `${day}/${month}/${year}`;
+  }
+}
+
+/**
+ * Configura o locale brasileiro para os inputs de data usando Flatpickr
+ */
+function setupBrazilianDateLocale() {
+  // Verifica se Flatpickr está disponível
+  if (typeof flatpickr === 'undefined') {
+    console.warn('Flatpickr não está carregado. Tentando novamente...');
+    // Tenta novamente após um pequeno delay
+    setTimeout(setupBrazilianDateLocale, 100);
+    return;
+  }
+  
+  // Configura o locale do documento para português brasileiro
+  if (document.documentElement.lang !== 'pt-BR') {
+    document.documentElement.lang = 'pt-BR';
+  }
+  
+  // Verifica se o locale português está disponível
+  let localeToUse = 'pt';
+  if (flatpickr.l10ns && flatpickr.l10ns.pt) {
+    localeToUse = 'pt';
+  } else {
+    console.warn('Locale pt não encontrado, usando padrão');
+  }
+  
+  // Configuração do Flatpickr para formato brasileiro
+  const flatpickrOptions = {
+    locale: localeToUse, // Locale português brasileiro
+    dateFormat: 'd/m/Y', // Formato DD/MM/YYYY
+    altInput: false, // Não usar input alternativo
+    altFormat: 'd/m/Y', // Formato alternativo (caso use altInput)
+    allowInput: false, // Não permitir digitação manual (apenas pelo calendário)
+    clickOpens: true, // Abre o calendário ao clicar
+    monthSelectorType: 'static', // Seletor de mês estático
+    firstDayOfWeek: 0, // Domingo como primeiro dia da semana (padrão brasileiro)
+    weekNumbers: false, // Não mostrar números da semana
+    time_24hr: true, // Formato 24 horas (se usar hora)
+    onChange: function(selectedDates, dateStr, instance) {
+      // Callback quando a data muda
+      if (instance.input.id === 'dateFrom' || instance.input.id === 'dateTo') {
+        handleCustomDateChange();
+      }
+    }
+  };
+  
+  // Inicializa Flatpickr no input de data inicial
+  if (elements.dateFrom) {
+    elements.dateFromFlatpickr = flatpickr(elements.dateFrom, flatpickrOptions);
+  }
+  
+  // Inicializa Flatpickr no input de data final
+  if (elements.dateTo) {
+    elements.dateToFlatpickr = flatpickr(elements.dateTo, flatpickrOptions);
   }
 }
 
@@ -1525,9 +1662,18 @@ function clearDateFilter() {
   // Remove classe active das opções
   elements.dateOptionBtns.forEach(btn => btn.classList.remove('active'));
   
-  // Limpa campos de data
-  if (elements.dateFrom) elements.dateFrom.value = '';
-  if (elements.dateTo) elements.dateTo.value = '';
+  // Limpa campos de data (usando Flatpickr se disponível)
+  if (elements.dateFromFlatpickr) {
+    elements.dateFromFlatpickr.clear();
+  } else if (elements.dateFrom) {
+    elements.dateFrom.value = '';
+  }
+  
+  if (elements.dateToFlatpickr) {
+    elements.dateToFlatpickr.clear();
+  } else if (elements.dateTo) {
+    elements.dateTo.value = '';
+  }
   
   // Reseta critério para padrão
   if (elements.dateCriteriaSelect) {

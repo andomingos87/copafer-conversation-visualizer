@@ -553,6 +553,111 @@ body {
   height: 12px;
 }
 
+/* Configuração para formato brasileiro (DD/MM/YYYY) */
+.date-input-mini[lang="pt-BR"],
+.date-input-mini[locale="pt-BR"] {
+  direction: ltr;
+}
+
+/* Força o formato brasileiro no calendário */
+.date-input-mini::-webkit-datetime-edit {
+  direction: ltr;
+}
+
+.date-input-mini::-webkit-datetime-edit-fields-wrapper {
+  direction: ltr;
+}
+
+.date-input-mini::-webkit-datetime-edit-text {
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+
+.date-input-mini::-webkit-datetime-edit-month-field,
+.date-input-mini::-webkit-datetime-edit-day-field,
+.date-input-mini::-webkit-datetime-edit-year-field {
+  color: var(--text-primary);
+  padding: 0 2px;
+}
+
+/* Estilos para Flatpickr - Date Picker Brasileiro */
+.flatpickr-calendar {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.flatpickr-months {
+  background: var(--bg-sidebar);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 8px;
+}
+
+.flatpickr-month {
+  color: var(--text-primary);
+}
+
+.flatpickr-current-month {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.flatpickr-weekdays {
+  background: var(--bg-sidebar);
+  padding: 8px 0;
+}
+
+.flatpickr-weekday {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.flatpickr-day {
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.flatpickr-day:hover {
+  background: rgba(230, 81, 0, 0.1);
+  border-color: var(--color-primary);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.flatpickr-day.inRange {
+  background: rgba(230, 81, 0, 0.15);
+  border-color: rgba(230, 81, 0, 0.3);
+}
+
+.flatpickr-day.today {
+  border-color: var(--color-primary-light);
+}
+
+.flatpickr-day.today:hover {
+  background: var(--color-primary-light);
+  color: white;
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  color: var(--text-primary);
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: var(--color-primary);
+}
+
 /* Select de critério mini */
 .date-criteria-mini {
   padding: 6px 8px;
