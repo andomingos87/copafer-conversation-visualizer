@@ -256,6 +256,48 @@ body {
   border-color: var(--color-primary);
 }
 
+/* Links Úteis */
+.links-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.useful-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.useful-link:hover {
+  background: var(--highlight-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  transform: translateX(2px);
+}
+
+.useful-link:active {
+  transform: translateX(0);
+}
+
+.link-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
 /* Autocomplete Component */
 .autocomplete-wrapper {
   position: relative;
