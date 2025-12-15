@@ -50,6 +50,9 @@ const elements = {
   exportCurrentWrapper: null,
   exportCurrentBtn: null,
   exportCurrentDropdown: null,
+  // Elementos do menu de links
+  linksMenuToggle: null,
+  linksMenuDropdown: null,
   // Elementos do filtro de data
   dateFilterClear: null,
   dateCriteriaInputs: null,
@@ -99,6 +102,9 @@ function init() {
   elements.exportCurrentWrapper = document.getElementById('exportCurrentWrapper');
   elements.exportCurrentBtn = document.getElementById('exportCurrentBtn');
   elements.exportCurrentDropdown = document.getElementById('exportCurrentDropdown');
+  // Elementos do menu de links
+  elements.linksMenuToggle = document.getElementById('linksMenuToggle');
+  elements.linksMenuDropdown = document.getElementById('linksMenuDropdown');
   // Elementos do filtro de data (dropdown compacto)
   elements.dateFilterToggle = document.getElementById('dateFilterToggle');
   elements.dateFilterLabel = document.getElementById('dateFilterLabel');
@@ -319,6 +325,10 @@ function setupEventListeners() {
     if (!e.target.closest('.export-wrapper')) {
       hideAllExportDropdowns();
     }
+    // Fecha dropdown de links ao clicar fora
+    if (!e.target.closest('.links-menu-wrapper')) {
+      hideLinksMenuDropdown();
+    }
   });
   
   // Tecla Enter no campo de busca
@@ -372,6 +382,9 @@ function setupEventListeners() {
 
   // Configura exportação
   setupExportListeners();
+
+  // Configura menu de links
+  setupLinksMenuListeners();
 
   // Configura filtro de data
   setupDateFilterListeners();
@@ -1765,6 +1778,54 @@ function toggleExportDropdown(dropdown) {
 function hideAllExportDropdowns() {
   const allDropdowns = document.querySelectorAll('.export-dropdown');
   allDropdowns.forEach(d => d.classList.remove('show'));
+}
+
+// ========================================
+// MENU DE LINKS ÚTEIS
+// ========================================
+
+/**
+ * Configura listeners para o menu de links
+ */
+function setupLinksMenuListeners() {
+  // Botão toggle do menu de links
+  if (elements.linksMenuToggle) {
+    elements.linksMenuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleLinksMenuDropdown();
+    });
+  }
+  
+  // Fechar dropdown quando clicar em um link
+  if (elements.linksMenuDropdown) {
+    elements.linksMenuDropdown.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hideLinksMenuDropdown();
+      });
+    });
+  }
+}
+
+/**
+ * Alterna a visibilidade do dropdown de links
+ */
+function toggleLinksMenuDropdown() {
+  if (!elements.linksMenuDropdown) return;
+  
+  // Fecha outros dropdowns primeiro
+  hideAllExportDropdowns();
+  
+  // Alterna o dropdown de links
+  elements.linksMenuDropdown.classList.toggle('show');
+}
+
+/**
+ * Esconde o dropdown de links
+ */
+function hideLinksMenuDropdown() {
+  if (elements.linksMenuDropdown) {
+    elements.linksMenuDropdown.classList.remove('show');
+  }
 }
 
 /**
