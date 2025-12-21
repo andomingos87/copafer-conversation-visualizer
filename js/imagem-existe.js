@@ -12,8 +12,15 @@ const imagemExisteElements = {
   buscarText: null,
   buscarSpinner: null,
   resultado: null,
-  fecharBtn: null
+  fecharBtn: null,
+  verImagensWrapper: null,
+  verImagensBtn: null,
+  gridWrapper: null,
+  grid: null
 };
+
+// Armazena as imagens retornadas pela API
+let imagensArmazenadas = [];
 
 // URL da API
 const IMAGEM_EXISTE_API_URL = 'https://primary-production-ef755.up.railway.app/webhook/se-imagem-existe';
@@ -32,6 +39,10 @@ function initImagemExiste() {
   imagemExisteElements.buscarSpinner = document.querySelector('#imagemExisteBuscarBtn .buscar-spinner');
   imagemExisteElements.resultado = document.getElementById('imagemExisteResultado');
   imagemExisteElements.fecharBtn = document.getElementById('imagemExisteFechaBtn');
+  imagemExisteElements.verImagensWrapper = document.getElementById('imagemExisteVerImagensWrapper');
+  imagemExisteElements.verImagensBtn = document.getElementById('imagemExisteVerImagensBtn');
+  imagemExisteElements.gridWrapper = document.getElementById('imagemExisteGridWrapper');
+  imagemExisteElements.grid = document.getElementById('imagemExisteGrid');
   
   // Botão de abrir no header
   const openBtn = document.getElementById('imagemExisteBtn');
@@ -68,6 +79,10 @@ function initImagemExiste() {
         buscarImagem();
       }
     });
+  }
+  
+  if (imagemExisteElements.verImagensBtn) {
+    imagemExisteElements.verImagensBtn.addEventListener('click', exibirImagensGrid);
   }
   
   // Fechar com ESC
@@ -130,6 +145,20 @@ function resetImagemExisteForm() {
     imagemExisteElements.resultado.className = 'imagem-existe-resultado';
   }
   
+  if (imagemExisteElements.verImagensWrapper) {
+    imagemExisteElements.verImagensWrapper.style.display = 'none';
+  }
+  
+  if (imagemExisteElements.gridWrapper) {
+    imagemExisteElements.gridWrapper.style.display = 'none';
+  }
+  
+  if (imagemExisteElements.grid) {
+    imagemExisteElements.grid.innerHTML = '';
+  }
+  
+  imagensArmazenadas = [];
+  
   setImagemExisteLoading(false);
 }
 
@@ -157,7 +186,7 @@ function setImagemExisteLoading(isLoading) {
 /**
  * Mostra o resultado da busca
  */
-function showImagemExisteResultado(existe, erro = false) {
+function showImagemExisteResultado(existe, erro = false, imagens = []) {
   if (!imagemExisteElements.resultado) return;
   
   const iconEl = imagemExisteElements.resultado.querySelector('.resultado-icon');
@@ -169,14 +198,38 @@ function showImagemExisteResultado(existe, erro = false) {
     imagemExisteElements.resultado.className = 'imagem-existe-resultado erro';
     if (iconEl) iconEl.textContent = '⚠️';
     if (textoEl) textoEl.textContent = typeof existe === 'string' ? existe : 'Erro ao verificar imagem';
+    // Esconde o botão "Ver imagens" em caso de erro
+    if (imagemExisteElements.verImagensWrapper) {
+      imagemExisteElements.verImagensWrapper.style.display = 'none';
+    }
   } else if (existe) {
     imagemExisteElements.resultado.className = 'imagem-existe-resultado sucesso';
     if (iconEl) iconEl.textContent = '✅';
     if (textoEl) textoEl.textContent = 'Imagem existe';
+    
+    // Exibe as imagens diretamente se houver
+    if (imagens && imagens.length > 0) {
+      imagensArmazenadas = imagens;
+      exibirImagensGrid();
+    } else {
+      // Esconde a grid se não houver imagens
+      if (imagemExisteElements.gridWrapper) {
+        imagemExisteElements.gridWrapper.style.display = 'none';
+      }
+    }
+    
+    // Sempre esconde o botão "Ver imagens"
+    if (imagemExisteElements.verImagensWrapper) {
+      imagemExisteElements.verImagensWrapper.style.display = 'none';
+    }
   } else {
     imagemExisteElements.resultado.className = 'imagem-existe-resultado erro';
     if (iconEl) iconEl.textContent = '❌';
     if (textoEl) textoEl.textContent = 'Imagem não existe';
+    // Esconde o botão "Ver imagens" quando não existe
+    if (imagemExisteElements.verImagensWrapper) {
+      imagemExisteElements.verImagensWrapper.style.display = 'none';
+    }
   }
 }
 
@@ -248,6 +301,8 @@ async function buscarImagem() {
           existe = data.toLowerCase() === 'true';
         } else if (Array.isArray(data) && data.length > 0) {
           const firstItem = data[0];
+          let imagens = [];
+          
           if (typeof firstItem === 'boolean') {
             existe = firstItem;
           } else if (typeof firstItem === 'string') {
@@ -260,22 +315,39 @@ async function buscarImagem() {
             if (isExistKey) {
               const val = firstItem[isExistKey];
               existe = val === true || val === 'true' || String(val).toLowerCase() === 'true';
+              
+              // Extrai as imagens se existirem
+              if (existe && firstItem.images && Array.isArray(firstItem.images)) {
+                imagens = firstItem.images;
+              }
             } else {
               // Fallback para outros campos comuns
               existe = firstItem.result === true || firstItem.success === true || false;
             }
           }
+          
+          showImagemExisteResultado(existe, false, imagens);
+          return; // Retorna aqui para não chamar showImagemExisteResultado novamente
         } else if (data && typeof data === 'object') {
           // Verifica também se retornar apenas um objeto em vez de array
           const keys = Object.keys(data);
           const isExistKey = keys.find(k => k.toLowerCase() === 'isimageexist' || k.toLowerCase() === 'existe' || k.toLowerCase() === 'exists');
           
+          let imagens = [];
           if (isExistKey) {
             const val = data[isExistKey];
             existe = val === true || val === 'true' || String(val).toLowerCase() === 'true';
+            
+            // Extrai as imagens se existirem
+            if (existe && data.images && Array.isArray(data.images)) {
+              imagens = data.images;
+            }
           } else {
             existe = data.result === true || data.success === true || false;
           }
+          
+          showImagemExisteResultado(existe, false, imagens);
+          return; // Retorna aqui para não chamar showImagemExisteResultado novamente
         }
       } catch (parseError) {
         // Se não for JSON válido, tenta interpretar o texto
@@ -298,6 +370,38 @@ async function buscarImagem() {
   } finally {
     setImagemExisteLoading(false);
   }
+}
+
+/**
+ * Exibe as imagens em uma grid
+ */
+function exibirImagensGrid() {
+  if (!imagemExisteElements.grid || imagensArmazenadas.length === 0) return;
+  
+  // Mostra a grid
+  if (imagemExisteElements.gridWrapper) {
+    imagemExisteElements.gridWrapper.style.display = 'block';
+  }
+  
+  // Limpa a grid anterior
+  imagemExisteElements.grid.innerHTML = '';
+  
+  // Cria os itens da grid
+  imagensArmazenadas.forEach((imageData, index) => {
+    const gridItem = document.createElement('div');
+    gridItem.className = 'imagem-existe-grid-item';
+    
+    // Usa o base64 diretamente (já vem com o prefixo data:image/jpeg;base64,)
+    const imageUrl = imageData.base64 || '';
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = `Imagem ${imageData.produto_id || imageData.sku || imageData.nome_arquivo || index + 1}`;
+    img.loading = 'lazy';
+    
+    gridItem.appendChild(img);
+    imagemExisteElements.grid.appendChild(gridItem);
+  });
 }
 
 // Inicializa quando o DOM estiver pronto

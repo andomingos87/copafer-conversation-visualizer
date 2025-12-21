@@ -1,0 +1,15 @@
+[
+    {
+      "isImageExist": true,
+      "images": [
+        {
+          "produto_id": 5674,
+          "sku": 5674,
+          "ean": "7898945230209",
+          "base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEBLAEsAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLRQAUUUUAFFFF\nABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q==",
+          "mimetype": "image/jpeg",
+          "nome_arquivo": "5674"
+        }
+      ]
+    }
+  ]
