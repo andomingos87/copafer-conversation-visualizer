@@ -2178,3 +2178,254 @@ body {
   }
 }
 
+/* ========================================
+   MODAL IMAGEM EXISTE
+======================================== */
+
+.imagem-existe-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.imagem-existe-modal {
+  background: var(--bg-header);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 420px;
+  width: 100%;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.imagem-existe-modal.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.imagem-existe-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.imagem-existe-modal-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.imagem-existe-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.imagem-existe-close-btn:hover {
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+}
+
+.imagem-existe-modal-body {
+  padding: 24px;
+}
+
+.imagem-existe-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.imagem-existe-input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.imagem-existe-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-dark);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.imagem-existe-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.1);
+}
+
+.imagem-existe-input::placeholder {
+  color: var(--text-muted);
+}
+
+.imagem-existe-input:disabled {
+  background: var(--bg-sidebar);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.imagem-existe-buscar-btn {
+  padding: 12px 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.imagem-existe-buscar-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.imagem-existe-buscar-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.imagem-existe-buscar-btn .buscar-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagem-existe-buscar-btn .spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.imagem-existe-resultado {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.imagem-existe-resultado.sucesso {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.imagem-existe-resultado.erro {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.imagem-existe-resultado .resultado-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.imagem-existe-resultado .resultado-texto {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.imagem-existe-resultado.sucesso .resultado-texto {
+  color: #16a34a;
+}
+
+.imagem-existe-resultado.erro .resultado-texto {
+  color: #dc2626;
+}
+
+.imagem-existe-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.imagem-existe-fechar-btn {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.imagem-existe-fechar-btn:hover {
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+}
+
+/* Responsivo - Modal Imagem Existe */
+@media (max-width: 480px) {
+  .imagem-existe-overlay {
+    padding: 16px;
+  }
+  
+  .imagem-existe-modal {
+    max-width: 100%;
+  }
+  
+  .imagem-existe-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .imagem-existe-modal-body {
+    padding: 20px;
+  }
+  
+  .imagem-existe-input-group {
+    flex-direction: column;
+  }
+  
+  .imagem-existe-buscar-btn {
+    width: 100%;
+  }
+  
+  .imagem-existe-modal-footer {
+    padding: 16px 20px;
+  }
+}
+
