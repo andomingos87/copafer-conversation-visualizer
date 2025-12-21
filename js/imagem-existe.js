@@ -253,14 +253,32 @@ async function buscarImagem() {
           } else if (typeof firstItem === 'string') {
             existe = firstItem.toLowerCase() === 'true';
           } else if (firstItem && typeof firstItem === 'object') {
-            existe = firstItem.existe || firstItem.result || firstItem.success || false;
+            // Verifica qualquer campo que possa indicar existência de forma flexível
+            const keys = Object.keys(firstItem);
+            const isExistKey = keys.find(k => k.toLowerCase() === 'isimageexist' || k.toLowerCase() === 'existe' || k.toLowerCase() === 'exists');
+            
+            if (isExistKey) {
+              const val = firstItem[isExistKey];
+              existe = val === true || val === 'true' || String(val).toLowerCase() === 'true';
+            } else {
+              // Fallback para outros campos comuns
+              existe = firstItem.result === true || firstItem.success === true || false;
+            }
           }
         } else if (data && typeof data === 'object') {
-          existe = data.existe || data.result || data.success || false;
+          // Verifica também se retornar apenas um objeto em vez de array
+          const keys = Object.keys(data);
+          const isExistKey = keys.find(k => k.toLowerCase() === 'isimageexist' || k.toLowerCase() === 'existe' || k.toLowerCase() === 'exists');
+          
+          if (isExistKey) {
+            const val = data[isExistKey];
+            existe = val === true || val === 'true' || String(val).toLowerCase() === 'true';
+          } else {
+            existe = data.result === true || data.success === true || false;
+          }
         }
       } catch (parseError) {
         // Se não for JSON válido, tenta interpretar o texto
-        console.warn('Resposta não é JSON válido:', responseText);
         existe = trimmedResponse.includes('true') || trimmedResponse.includes('sim') || trimmedResponse.includes('yes');
       }
     }
@@ -268,8 +286,6 @@ async function buscarImagem() {
     showImagemExisteResultado(existe);
     
   } catch (error) {
-    console.error('Erro ao verificar imagem:', error);
-    
     let mensagemErro = 'Erro ao verificar imagem';
     
     if (error.name === 'AbortError') {
