@@ -215,6 +215,51 @@ function formatDateOnly(dateString) {
 }
 
 /**
+ * Formata data para separador de dia (Hoje, Ontem, ou data formatada)
+ * @param {string} dateString - Data em formato ISO string
+ * @returns {string} - Data formatada para separador
+ */
+function formatDateSeparator(dateString) {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Compara apenas a data (sem hora)
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    
+    if (dateOnly.getTime() === todayOnly.getTime()) {
+      return 'Hoje';
+    } else if (dateOnly.getTime() === yesterdayOnly.getTime()) {
+      return 'Ontem';
+    } else {
+      // Formata data completa
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      // Nome do dia da semana
+      const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+      const dayOfWeek = daysOfWeek[date.getDay()];
+      
+      // Nome do mês
+      const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 
+                     'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const monthName = months[date.getMonth()];
+      
+      return `${dayOfWeek}, ${day} de ${monthName} de ${year}`;
+    }
+  } catch (error) {
+    return formatDateOnly(dateString);
+  }
+}
+
+/**
  * Retorna o início do dia (00:00:00)
  * @param {Date} date - Data base
  * @returns {Date} - Data no início do dia

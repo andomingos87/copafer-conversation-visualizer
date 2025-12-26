@@ -542,6 +542,9 @@ function renderMessages(sessionId) {
   // Limpa mensagens anteriores
   elements.chatMessages.innerHTML = '';
   
+  // Variável para rastrear a última data exibida
+  let lastDisplayedDate = null;
+  
   // Renderiza cada mensagem
   messages.forEach((msg, index) => {
     const type = msg.message.type; // 'human' ou 'ai'
@@ -558,9 +561,12 @@ function renderMessages(sessionId) {
     // Obtém o horário e data da mensagem
     let messageTime = '';
     let messageDate = '';
+    let messageDateObj = null;
+    
     if (msg.created_at) {
       messageTime = formatTime(msg.created_at);
       messageDate = formatDateOnly(msg.created_at);
+      messageDateObj = new Date(msg.created_at);
     } else {
       // Se não houver created_at, gera um horário baseado no índice (para dados mockup)
       // Simula horários incrementais para visualização
@@ -569,6 +575,7 @@ function renderMessages(sessionId) {
       baseDate.setSeconds(baseDate.getSeconds() + (index * 30)); // Incrementa 30 segundos por mensagem
       messageTime = formatTime(baseDate.toISOString());
       messageDate = formatDateOnly(baseDate.toISOString());
+      messageDateObj = baseDate;
     }
     
     // Se ainda não tiver horário, usa horário atual
@@ -576,6 +583,29 @@ function renderMessages(sessionId) {
       const now = new Date();
       messageTime = formatTime(now.toISOString());
       messageDate = formatDateOnly(now.toISOString());
+      messageDateObj = now;
+    }
+    
+    // Verifica se precisa adicionar separador de dia
+    if (messageDateObj) {
+      // Normaliza a data para comparar apenas dia/mês/ano (sem hora)
+      const currentDateKey = new Date(
+        messageDateObj.getFullYear(),
+        messageDateObj.getMonth(),
+        messageDateObj.getDate()
+      ).getTime();
+      
+      // Compara com a última data exibida
+      if (lastDisplayedDate === null || lastDisplayedDate !== currentDateKey) {
+        // Adiciona separador de dia
+        const dateSeparator = document.createElement('div');
+        dateSeparator.className = 'date-separator';
+        dateSeparator.textContent = formatDateSeparator(msg.created_at || messageDateObj.toISOString());
+        elements.chatMessages.appendChild(dateSeparator);
+        
+        // Atualiza a última data exibida
+        lastDisplayedDate = currentDateKey;
+      }
     }
     
     // Formata data e horário juntos

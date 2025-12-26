@@ -1084,6 +1084,40 @@ body {
   font-weight: 600;
 }
 
+/* Separador de data */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+  position: relative;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.date-separator::before,
+.date-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+  opacity: 0.5;
+}
+
+.date-separator::before {
+  margin-right: 12px;
+}
+
+.date-separator::after {
+  margin-left: 12px;
+}
+
 /* Highlight de busca */
 .highlight {
   background: var(--highlight-bg);
